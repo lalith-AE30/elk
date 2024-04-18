@@ -37,10 +37,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragger.glsl">
+    <None Include="shaders\cubes_fragment.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\verter.glsl">
+    <None Include="shaders\cubes_vertex.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

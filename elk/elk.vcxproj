@@ -149,8 +149,8 @@ xcopy /y $(ProjectDir)textures\ $(OutDir)textures\</Command>
     <ClInclude Include="user_input.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragger.glsl" />
-    <None Include="shaders\verter.glsl" />
+    <None Include="shaders\cubes_fragment.glsl" />
+    <None Include="shaders\cubes_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />
