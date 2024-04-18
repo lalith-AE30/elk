@@ -88,7 +88,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader shader_prog("shaders/verter.glsl", "shaders/fragger.glsl");
+    Shader shader_prog("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
 
     float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -146,12 +146,12 @@ int main()
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
-    GLuint VBO, VAO;
+    GLuint VBO, modelVAO, lightVAO;
     {
-        glGenVertexArrays(1, &VAO);
+        glGenVertexArrays(1, &modelVAO);
         glGenBuffers(1, &VBO);
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(modelVAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -162,7 +162,7 @@ int main()
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
     }
-
+    
     GLuint texture1 = map_texture("textures/container.jpg"), texture2 = map_texture("textures/awesomeface.png");
 
     shader_prog.use();
@@ -173,6 +173,8 @@ int main()
     float last_frame = 0.0f;
 
     Bindings bindings = generate_bindings(window);
+
+    glm::vec3 light_color(1.0f, 0.8862745098f, 0.0f);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -188,6 +190,7 @@ int main()
         shader_prog.use();
 
         shader_prog.setFloat("opac", state.mix);
+        shader_prog.setVec3("light_color", light_color);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
@@ -200,7 +203,7 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         shader_prog.setMat4("view", view);
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(modelVAO);
         for (unsigned int i = 0; i < 10; i++)
         {
             // calculate the model matrix for each object and pass it to shader before drawing
@@ -217,7 +220,7 @@ int main()
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &modelVAO);
     glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
