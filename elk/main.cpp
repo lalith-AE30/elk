@@ -53,7 +53,6 @@ const unsigned int SCR_HEIGHT = 600;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-
 int main()
 {
 	glfwInit();
@@ -170,7 +169,7 @@ int main()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		// load image, create texture and generate mipmaps
 		int width, height, nrChannels;
-		stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+		stbi_set_flip_vertically_on_load(true);
 		unsigned char* data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 0);
 		if (data)
 		{
@@ -231,7 +230,7 @@ int main()
 
 		processInput(window, &bindings, dt);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.01f, 0.0f, 0.01f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		shader_prog.use();
@@ -244,11 +243,9 @@ int main()
 		glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		shader_prog.setMat4("proj", proj);
 
-		// camera/view transformation
 		glm::mat4 view = camera.GetViewMatrix();
 		shader_prog.setMat4("view", view);
 
-		// render boxes
 		glBindVertexArray(VAO);
 		for (unsigned int i = 0; i < 10; i++)
 		{
@@ -262,19 +259,13 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
-	// optional: de-allocate all resources once they've outlived their purpose:
-	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 
-	// glfw: terminate, clearing all previously allocated GLFW resources.
-	// ------------------------------------------------------------------
 	glfwTerminate();
 	return 0;
 }
