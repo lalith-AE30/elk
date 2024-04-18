@@ -145,7 +145,6 @@ int main()
         glm::vec3(1.5f,  0.2f, -1.5f),
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
-    glm::vec3 sphere_positions(5.0f, 0.3f, 6.0f);
 
     GLuint VBO, VAO;
     {
@@ -263,9 +262,6 @@ void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetScrollCallback(window, scrollCallback);
-    state.capture_controller = true;
     state.scr_width = width;
     state.scr_height = height;
     glViewport(0, 0, width, height);
