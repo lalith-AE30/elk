@@ -363,3 +363,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 ogl_config.prop
+
+vcpkg_installed/

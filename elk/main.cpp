@@ -9,47 +9,23 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <format>
 
+#include "stb_image.h"
+#include "user_input.h"
 #include "shader.h"
 #include "camera.h"
-#include "stb_image.h"
 
-class KeyBind {
-private:
-	bool prev_state = GLFW_RELEASE;
-
-public:
-	const int key_;
-	GLFWwindow* const window_;
-
-	KeyBind(GLFWwindow* window, int key) : window_(window), key_(key) { }
-
-	bool clicked() {
-		bool click = (prev_state != GLFW_PRESS && glfwGetKey(window_, key_) == GLFW_PRESS);
-		prev_state = glfwGetKey(window_, key_);
-		return click;
-	}
-
-	bool down() {
-		return (glfwGetKey(window_, key_) == GLFW_PRESS);
-	}
-};
-
-struct Bindings {
-	KeyBind forward,
-		backward,
-		left,
-		right,
-		up,
-		down;
-};
+struct {
+	unsigned int scr_width;
+	unsigned int scr_height;
+	float mix;
+	bool capture_controller;
+} state = { 800, 600, 0.5, true };
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window, Bindings* const bindings, float dt);
-
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -62,7 +38,7 @@ int main()
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	}
 
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(state.scr_width, state.scr_height, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cerr << "Failed to create GLFW window" << std::endl;
@@ -170,7 +146,8 @@ int main()
 		// load image, create texture and generate mipmaps
 		int width, height, nrChannels;
 		stbi_set_flip_vertically_on_load(true);
-		unsigned char* data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 0);
+
+		unsigned char* data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 3);
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -205,7 +182,6 @@ int main()
 		}
 		stbi_image_free(data);
 	}
-
 	shader_prog.use();
 	shader_prog.setInt("texture1", 0);
 	shader_prog.setInt("texture2", 1);
@@ -213,14 +189,7 @@ int main()
 	float dt = 0.0f;
 	float last_frame = 0.0f;
 
-	Bindings bindings = {
-		KeyBind(window, GLFW_KEY_W),
-		KeyBind(window, GLFW_KEY_S),
-		KeyBind(window, GLFW_KEY_A),
-		KeyBind(window, GLFW_KEY_D),
-		KeyBind(window, GLFW_KEY_SPACE),
-		KeyBind(window, GLFW_KEY_LEFT_CONTROL)
-	};
+	Bindings bindings = generate_bindings(window);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -240,7 +209,7 @@ int main()
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
 		shader_prog.setMat4("proj", proj);
 
 		glm::mat4 view = camera.GetViewMatrix();
@@ -272,29 +241,43 @@ int main()
 
 void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-
-	if (bindings->forward.down())
-		camera.ProcessKeyboard(CameraMovement::FORWARD, dt);
-	if (bindings->backward.down())
-		camera.ProcessKeyboard(CameraMovement::BACKWARD, dt);
-	if (bindings->left.down())
-		camera.ProcessKeyboard(CameraMovement::LEFT, dt);
-	if (bindings->right.down())
-		camera.ProcessKeyboard(CameraMovement::RIGHT, dt);
-	if (bindings->up.down())
-		camera.ProcessKeyboard(CameraMovement::UP, dt);
-	if (bindings->down.down())
-		camera.ProcessKeyboard(CameraMovement::DOWN, dt);
-
-	camera.ProcessMouseMovement(window);
+	if (bindings->esc.clicked()) {
+		if (!state.capture_controller) {
+			glfwSetWindowShouldClose(window, true);
+		}
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetScrollCallback(window, NULL);
+		state.capture_controller = false;
+	}
+	if (bindings->left_mouse.clicked()) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetScrollCallback(window, scrollCallback);
+		state.capture_controller = true;
+	}
+	if (state.capture_controller) {
+		if (bindings->forward.down())
+			camera.ProcessKeyboard(CameraMovement::FORWARD, dt);
+		if (bindings->backward.down())
+			camera.ProcessKeyboard(CameraMovement::BACKWARD, dt);
+		if (bindings->left.down())
+			camera.ProcessKeyboard(CameraMovement::LEFT, dt);
+		if (bindings->right.down())
+			camera.ProcessKeyboard(CameraMovement::RIGHT, dt);
+		if (bindings->space.down())
+			camera.ProcessKeyboard(CameraMovement::UP, dt);
+		if (bindings->lctrl.down())
+			camera.ProcessKeyboard(CameraMovement::DOWN, dt);
+		camera.ProcessMouseMovement(window);
+	}
 }
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetScrollCallback(window, scrollCallback);
+	state.capture_controller = true;
+	state.scr_width = width;
+	state.scr_height = height;
 	glViewport(0, 0, width, height);
 }
 
@@ -302,4 +285,3 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
-
