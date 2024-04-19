@@ -192,9 +192,20 @@ int main()
 
     Bindings bindings = generate_bindings(window);
 
-    glm::vec4 light_color(1.0f);
-    glm::vec4 light_pos(1.2f, 1.0f, 2.0f, 1.0f);
-    float specular_intensity = 0.5f;
+    struct Material {
+        glm::vec4 ambient = glm::vec4(1.0f, 0.5f, 0.31f, 1.0f);
+        glm::vec4 diffuse = glm::vec4(1.0f, 0.5f, 0.31f, 1.0f);
+        glm::vec4 specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+        float shininess = 32.0f;
+    } material;
+
+    struct Light {
+        glm::vec4 pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f);
+
+        glm::vec4 ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+        glm::vec4 diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+        glm::vec4 specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    } light;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -207,6 +218,11 @@ int main()
         glClearColor(0.01f, 0.0f, 0.01f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //float time = glfwGetTime();
+        //light_pos = glm::vec4(sin(time), 2.0f, cos(time), 1.0f);
+
+        glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
         {
             lighting_shader.use();
 
@@ -215,16 +231,18 @@ int main()
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, texture2);
 
-            glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
             lighting_shader.setMat4("proj", proj);
-
-            glm::mat4 view = camera.GetViewMatrix();
             lighting_shader.setMat4("view", view);
 
-            lighting_shader.setVec4("ambient", light_color * state.mix);
-            lighting_shader.setVec4("light_pos", view * light_pos);
-            lighting_shader.setVec4("light_color", light_color);
-            lighting_shader.setFloat("specular_intensity", specular_intensity);
+            lighting_shader.setVec4("light.pos", view * light.pos);
+            lighting_shader.setVec4("light.ambient", light.ambient);
+            lighting_shader.setVec4("light.diffuse", light.diffuse);
+            lighting_shader.setVec4("light.specular", light.specular);
+
+            lighting_shader.setVec4("material.ambient", material.ambient);
+            lighting_shader.setVec4("material.diffuse", material.diffuse);
+            lighting_shader.setVec4("material.specular", material.specular);
+            lighting_shader.setFloat("material.shininess", material.shininess);
 
             glBindVertexArray(modelVAO);
             for (unsigned int i = 0; i < 10; i++)
@@ -242,14 +260,11 @@ int main()
         {
             light_source_shader.use();
 
-            glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
             light_source_shader.setMat4("proj", proj);
-
-            glm::mat4 view = camera.GetViewMatrix();
             light_source_shader.setMat4("view", view);
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(light_pos));
+            model = glm::translate(model, glm::vec3(light.pos));
             model = glm::scale(model, glm::vec3(0.2f));
             light_source_shader.setMat4("model", model);
 
