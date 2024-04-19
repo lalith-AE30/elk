@@ -20,6 +20,8 @@ private:
             return glfwGetMouseButton(window_, key_);
         case KeyType::KEYBOARD:
             return glfwGetKey(window_, key_);
+        default:
+            return GLFW_RELEASE;
         }
     }
 

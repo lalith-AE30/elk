@@ -134,50 +134,6 @@ int main()
     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
     };
-
-    //float vertices[] = {
-    //    -0.5f, -0.5f, -0.5f,  
-    //     0.5f, -0.5f, -0.5f,  
-    //     0.5f,  0.5f, -0.5f,  
-    //     0.5f,  0.5f, -0.5f,  
-    //    -0.5f,  0.5f, -0.5f,  
-    //    -0.5f, -0.5f, -0.5f,  
-
-    //    -0.5f, -0.5f,  0.5f,  
-    //     0.5f, -0.5f,  0.5f,  
-    //     0.5f,  0.5f,  0.5f,  
-    //     0.5f,  0.5f,  0.5f,  
-    //    -0.5f,  0.5f,  0.5f,  
-    //    -0.5f, -0.5f,  0.5f,  
-
-    //    -0.5f,  0.5f,  0.5f,  
-    //    -0.5f,  0.5f, -0.5f,  
-    //    -0.5f, -0.5f, -0.5f,  
-    //    -0.5f, -0.5f, -0.5f,  
-    //    -0.5f, -0.5f,  0.5f,  
-    //    -0.5f,  0.5f,  0.5f,  
-
-    //     0.5f,  0.5f,  0.5f,  
-    //     0.5f,  0.5f, -0.5f,  
-    //     0.5f, -0.5f, -0.5f,  
-    //     0.5f, -0.5f, -0.5f,  
-    //     0.5f, -0.5f,  0.5f,  
-    //     0.5f,  0.5f,  0.5f,  
-
-    //    -0.5f, -0.5f, -0.5f,  
-    //     0.5f, -0.5f, -0.5f,  
-    //     0.5f, -0.5f,  0.5f,  
-    //     0.5f, -0.5f,  0.5f,  
-    //    -0.5f, -0.5f,  0.5f,  
-    //    -0.5f, -0.5f, -0.5f,  
-
-    //    -0.5f,  0.5f, -0.5f,  
-    //     0.5f,  0.5f, -0.5f,  
-    //     0.5f,  0.5f,  0.5f,  
-    //     0.5f,  0.5f,  0.5f,  
-    //    -0.5f,  0.5f,  0.5f,  
-    //    -0.5f,  0.5f, -0.5f,  
-    //};
     glm::vec3 cube_positions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
@@ -220,12 +176,12 @@ int main()
 
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(0);
         }
     }
 
-    GLuint texture1 = map_texture("textures/container.jpg"), texture2 = map_texture("textures/awesomeface.png");
+    GLuint texture1 = map_texture("textures/container.jpg"), texture2 = map_texture("textures/moon.jpg");
 
     lighting_shader.use();
     lighting_shader.setInt("texture1", 0);
@@ -236,8 +192,9 @@ int main()
 
     Bindings bindings = generate_bindings(window);
 
-    glm::vec3 light_color(1.0f, 0.8862745098f, 0.0f);
-    glm::vec3 light_pos(1.2f, 1.0f, 2.0f);
+    glm::vec4 light_color(1.0f);
+    glm::vec4 light_pos(1.2f, 1.0f, 2.0f, 1.0f);
+    float specular_intensity = 0.5f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -253,8 +210,6 @@ int main()
         {
             lighting_shader.use();
 
-            lighting_shader.setVec3("ambient", light_color * state.mix);
-
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture1);
             glActiveTexture(GL_TEXTURE1);
@@ -265,6 +220,11 @@ int main()
 
             glm::mat4 view = camera.GetViewMatrix();
             lighting_shader.setMat4("view", view);
+
+            lighting_shader.setVec4("ambient", light_color * state.mix);
+            lighting_shader.setVec4("light_pos", view * light_pos);
+            lighting_shader.setVec4("light_color", light_color);
+            lighting_shader.setFloat("specular_intensity", specular_intensity);
 
             glBindVertexArray(modelVAO);
             for (unsigned int i = 0; i < 10; i++)
@@ -289,7 +249,7 @@ int main()
             light_source_shader.setMat4("view", view);
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, light_pos);
+            model = glm::translate(model, glm::vec3(light_pos));
             model = glm::scale(model, glm::vec3(0.2f));
             light_source_shader.setMat4("model", model);
 
@@ -337,9 +297,9 @@ void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
         if (bindings->key_lctrl.down())
             camera.ProcessKeyboard(CameraMovement::DOWN, dt);
         if (bindings->key_up.down())
-            state.mix += 0.01;
+            state.mix = std::min(state.mix + 0.01f, 1.0f);
         if (bindings->key_down.down())
-            state.mix -= 0.01;
+            state.mix = std::max(state.mix - 0.01f, 0.0f);
         camera.ProcessMouseMovement(window);
     }
 }
