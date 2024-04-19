@@ -151,6 +151,8 @@ xcopy /y $(ProjectDir)textures\ $(OutDir)textures\</Command>
   <ItemGroup>
     <None Include="shaders\cubes_fragment.glsl" />
     <None Include="shaders\cubes_vertex.glsl" />
+    <None Include="shaders\light_fragment.glsl" />
+    <None Include="shaders\light_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />

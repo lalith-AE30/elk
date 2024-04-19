@@ -43,6 +43,12 @@
     <None Include="shaders\cubes_vertex.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="shaders\light_fragment.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\light_vertex.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png">
