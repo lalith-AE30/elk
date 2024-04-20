@@ -11,45 +11,11 @@
 #include <vector>
 #include <format>
 
+#include "camera.h"
+#include "shader.h"
+#include "shader_utils.h"
 #include "stb_image.h"
 #include "user_input.h"
-#include "shader.h"
-#include "camera.h"
-
-struct Material {
-    GLuint diffuse;
-    GLuint specular;
-    float shininess;
-};
-
-GLuint map_texture(const char* filename) {
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-        return -1;
-    }
-    stbi_image_free(data);
-    return texture;
-}
 
 struct {
     unsigned int scr_width;
@@ -93,7 +59,8 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader lighting_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
+    Shader directional_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_dir.glsl");
+    Shader point_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_point.glsl");
     Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
     float vertices[] = {
@@ -186,12 +153,19 @@ int main()
         }
     }
 
-    GLuint diffuse_map = map_texture("textures/container2.png");
-    GLuint specular_map = map_texture("textures/lighting_maps_specular_color.png");
+    GLuint diffuse_map = LoadTexture("textures/container2.png");
+    GLuint specular_map = LoadTexture("textures/lighting_maps_specular_color.png");
+    GLuint emission_map = LoadTexture("textures/radioactive.png");
 
-    lighting_shader.use();
-    lighting_shader.setInt("material.diffuse", 0);
-    lighting_shader.setInt("material.specular", 1);
+    directional_light_shader.use();
+    directional_light_shader.setInt("material.diffuse", 0);
+    directional_light_shader.setInt("material.specular", 1);
+    directional_light_shader.setInt("material.emission", 2);
+
+    point_light_shader.use();
+    point_light_shader.setInt("material.diffuse", 0);
+    point_light_shader.setInt("material.specular", 1);
+    point_light_shader.setInt("material.emission", 2);
 
     float dt = 0.0f;
     float last_frame = 0.0f;
@@ -201,16 +175,23 @@ int main()
     Material material = {
         diffuse_map,
         specular_map,
+        emission_map,
         32.0f
     };
 
-    struct Light {
-        glm::vec4 pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f);
+    Light light = {
+         glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
+         glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
+         glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+         glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
 
-        glm::vec4 ambient = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-        glm::vec4 diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-        glm::vec4 specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    } light;
+    DirectionalLight dir_light = {
+     glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
+     glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
+     glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+     glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
 
     while (!glfwWindowShouldClose(window))
     {
@@ -223,35 +204,17 @@ int main()
         glClearColor(0.01f, 0.0f, 0.01f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //glm::vec3 light_color;
-        //light_color.x = sin(glfwGetTime() * 2.0f);
-        //light_color.y = sin(glfwGetTime() * 0.7f);
-        //light_color.z = sin(glfwGetTime() * 1.3f);
-
-        //glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
-        //glm::vec3 ambient_color = diffuse_color * glm::vec3(0.2f);
-
-        //light.ambient = glm::vec4(ambient_color, 1.0f);
-        //light.diffuse= glm::vec4(diffuse_color, 1.0f);
+        float time = static_cast<float>(glfwGetTime());
 
         glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
         {
-            lighting_shader.use();
+            directional_light_shader.use();
 
-            lighting_shader.setMat4("proj", proj);
-            lighting_shader.setMat4("view", view);
+            directional_light_shader.setMat4("proj", proj);
+            directional_light_shader.setMat4("view", view);
 
-            lighting_shader.setVec4("light.pos", view * light.pos);
-            lighting_shader.setVec4("light.ambient", light.ambient);
-            lighting_shader.setVec4("light.diffuse", light.diffuse);
-            lighting_shader.setVec4("light.specular", light.specular);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, material.diffuse);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, material.specular);
-            lighting_shader.setFloat("material.shininess", material.shininess);
+            updateMaterialShader(directional_light_shader, material, dir_light, time);
 
             glBindVertexArray(modelVAO);
             for (unsigned int i = 0; i < 10; i++)
@@ -259,8 +222,29 @@ int main()
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, cube_positions[i]);
                 float angle = 20.0f * i;
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                lighting_shader.setMat4("model", model);
+                model = glm::rotate(model, time + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                directional_light_shader.setMat4("model", model);
+
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+        }
+
+        {
+            point_light_shader.use();
+
+            point_light_shader.setMat4("proj", proj);
+            point_light_shader.setMat4("view", view);
+
+            updateMaterialShader(point_light_shader, material, light, time);
+
+            glBindVertexArray(modelVAO);
+            for (unsigned int i = 0; i < 10; i++)
+            {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, cube_positions[i]);
+                float angle = 20.0f * i;
+                model = glm::rotate(model, time + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                point_light_shader.setMat4("model", model);
 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }

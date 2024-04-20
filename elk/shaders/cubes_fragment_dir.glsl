@@ -1,6 +1,6 @@
 #version 330 core
 struct Light {
-	vec4 pos;
+	vec4 dir;
 	
 	vec4 ambient;
     vec4 diffuse;
@@ -20,16 +20,13 @@ in vec4 pos;
 in vec3 normal;
 in vec2 tex_coord;
 
-uniform mat4 view;
-
 uniform float time;
-
 uniform Light light;
 uniform Material material;
 
 void main() {
 	vec3 norm = normalize(normal);
-	vec3 light_dir = normalize((view * light.pos).xyz - pos.xyz);
+	vec3 light_dir = normalize(-light.dir.xyz);
 	vec3 reflect_dir = reflect(-light_dir, norm);
 
 	float diff = max(dot(norm, light_dir), 0.0);

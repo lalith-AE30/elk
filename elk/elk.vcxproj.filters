@@ -35,6 +35,9 @@
     <ClInclude Include="user_input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shader_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\cubes_fragment.glsl">
@@ -47,6 +50,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\light_vertex.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="cubes_fragment_dir.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\cubes_fragment_point.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
