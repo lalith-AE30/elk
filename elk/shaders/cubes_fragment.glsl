@@ -8,8 +8,7 @@ struct Light {
 };
 
 struct Material {
-    vec4 ambient;
-    vec4 diffuse;
+    sampler2D diffuse;
     vec4 specular;
     float shininess;
 };
@@ -35,8 +34,8 @@ void main() {
 
 	float diff = max(dot(norm, light_dir), 0.0);
 
-	vec4 ambient  = light.ambient * (material.ambient);
-	vec4 diffuse  = light.diffuse * (diff * material.diffuse);
+	vec4 ambient  = light.ambient * texture(material.diffuse, tex_coord);
+	vec4 diffuse  = light.diffuse * texture(material.diffuse, tex_coord);
 	vec4 specular = light.specular * (spec * material.specular);
 
 	// mix(texture(texture1, tex_coord), texture(texture2, tex_coord), 0.0) * 
