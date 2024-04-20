@@ -16,6 +16,12 @@
 #include "shader.h"
 #include "camera.h"
 
+struct Material {
+    GLuint diffuse;
+    GLuint specular;
+    float shininess;
+};
+
 GLuint map_texture(const char* filename) {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -181,7 +187,7 @@ int main()
     }
 
     GLuint diffuse_map = map_texture("textures/container2.png");
-    GLuint specular_map = map_texture("textures/container2_specular.png");
+    GLuint specular_map = map_texture("textures/lighting_maps_specular_color.png");
 
     lighting_shader.use();
     lighting_shader.setInt("material.diffuse", 0);
@@ -192,12 +198,11 @@ int main()
 
     Bindings bindings = generate_bindings(window);
 
-    struct Material {
-        glm::vec4 ambient = glm::vec4(1.0f, 0.5f, 0.31f, 1.0f);
-        glm::vec4 diffuse = glm::vec4(1.0f, 0.5f, 0.31f, 1.0f);
-        glm::vec4 specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-        float shininess = 32.0f;
-    } material;
+    Material material = {
+        diffuse_map,
+        specular_map,
+        32.0f
+    };
 
     struct Light {
         glm::vec4 pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f);
@@ -234,11 +239,6 @@ int main()
         {
             lighting_shader.use();
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, diffuse_map);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, specular_map);
-
             lighting_shader.setMat4("proj", proj);
             lighting_shader.setMat4("view", view);
 
@@ -247,7 +247,10 @@ int main()
             lighting_shader.setVec4("light.diffuse", light.diffuse);
             lighting_shader.setVec4("light.specular", light.specular);
 
-            lighting_shader.setVec4("material.ambient", material.ambient);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, material.diffuse);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, material.specular);
             lighting_shader.setFloat("material.shininess", material.shininess);
 
             glBindVertexArray(modelVAO);

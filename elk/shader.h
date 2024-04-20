@@ -76,56 +76,146 @@ public:
     }
 
     void setInt(const std::string& name, int value) {
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform1i(loc->second, value);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform1i(new_loc, value);
+        }
     }
 
-    void setFloat(const std::string& name, float value) const {
-        glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    void setFloat(const std::string& name, float value) {
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform1f(loc->second, value);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform1f(new_loc, value);
+        }
     }
 
-    void setVec2(const std::string& name, const glm::vec2& value) const
+    void setVec2(const std::string& name, const glm::vec2& value)
     {
-        glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform2fv(loc->second, 1, &value[0]);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform2fv(new_loc, 1, &value[0]);
+        }
     }
-    void setVec2(const std::string& name, float x, float y) const
+    void setVec2(const std::string& name, float x, float y)
     {
-        glUniform2f(glGetUniformLocation(ID, name.c_str()), x, y);
-    }
-
-    void setVec3(const std::string& name, const glm::vec3& value) const
-    {
-        glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
-    }
-    void setVec3(const std::string& name, float x, float y, float z) const
-    {
-        glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
-    }
-
-    void setVec4(const std::string& name, const glm::vec4& value) const
-    {
-        glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, &value[0]);
-    }
-    void setVec4(const std::string& name, float x, float y, float z, float w) const
-    {
-        glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, w);
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform2f(loc->second, x, y);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform2f(new_loc, x, y);
+        }
     }
 
-    void setMat2(const std::string& name, const glm::mat2& mat) const
+    void setVec3(const std::string& name, const glm::vec3& value)
     {
-        glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform3fv(loc->second, 1, &value[0]);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform3fv(new_loc, 1, &value[0]);
+        }
+    }
+    void setVec3(const std::string& name, float x, float y, float z)
+    {
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform3f(loc->second, x, y, z);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform3f(new_loc, x, y, z);
+        }
     }
 
-    void setMat3(const std::string& name, const glm::mat3& mat) const
+    void setVec4(const std::string& name, const glm::vec4& value)
     {
-        glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform4fv(loc->second, 1, &value[0]);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform4fv(new_loc, 1, &value[0]);
+        }
+    }
+    void setVec4(const std::string& name, float x, float y, float z, float w)
+    {
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniform4f(loc->second, x, y, z, w);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniform4f(new_loc, x, y, z, w);
+        }
     }
 
-    void setMat4(const std::string& name, const glm::mat4& mat) const
+    void setMat2(const std::string& name, const glm::mat2& mat)
     {
-        glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniformMatrix2fv(loc->second, 1, GL_FALSE, &mat[0][0]);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniformMatrix2fv(new_loc, 1, GL_FALSE, &mat[0][0]);
+        }
+    }
+
+    void setMat3(const std::string& name, const glm::mat3& mat)
+    {
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniformMatrix3fv(loc->second, 1, GL_FALSE, &mat[0][0]);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniformMatrix3fv(new_loc, 1, GL_FALSE, &mat[0][0]);
+        }
+    }
+
+    void setMat4(const std::string& name, const glm::mat4& mat)
+    {
+        auto loc = lut.find(name);
+        if (loc != lut.end()) {
+            glUniformMatrix4fv(loc->second, 1, GL_FALSE, &mat[0][0]);
+        }
+        else {
+            GLuint new_loc = glGetUniformLocation(ID, name.c_str());
+            lut[name] = new_loc;
+            glUniformMatrix4fv(new_loc, 1, GL_FALSE, &mat[0][0]);
+        }
     }
 
 private:
+    std::map<const std::string, GLuint> lut;
+
     void checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;

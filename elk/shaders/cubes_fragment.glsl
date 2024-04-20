@@ -34,6 +34,5 @@ void main() {
 	vec4 diffuse  = light.diffuse  * (texture(material.diffuse, tex_coord)  * diff);
 	vec4 specular = light.specular * (texture(material.specular, tex_coord) * spec);
 
-	// mix(texture(texture1, tex_coord), texture(texture2, tex_coord), 0.0) * 
 	frag_color = ambient + diffuse + specular;
 }
