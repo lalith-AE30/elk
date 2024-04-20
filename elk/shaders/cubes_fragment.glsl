@@ -9,7 +9,7 @@ struct Light {
 
 struct Material {
     sampler2D diffuse;
-    vec4 specular;
+    sampler2D specular;
     float shininess;
 };
 
@@ -19,24 +19,20 @@ in vec4 pos;
 in vec3 normal;
 in vec2 tex_coord;
 
-uniform sampler2D texture1;
-uniform sampler2D texture2;
-
 uniform Light light;
 uniform Material material;
 
 void main() {
 	vec3 norm = normalize(normal);
 	vec3 light_dir = normalize(light.pos.xyz - pos.xyz);
-
 	vec3 reflect_dir = reflect(-light_dir, norm);
-	float spec = pow(max(dot(normalize(-pos.xyz), reflect_dir), 0.0), material.shininess);
 
 	float diff = max(dot(norm, light_dir), 0.0);
+	float spec = pow(max(dot(normalize(-pos.xyz), reflect_dir), 0.0), material.shininess);
 
-	vec4 ambient  = light.ambient * texture(material.diffuse, tex_coord);
-	vec4 diffuse  = light.diffuse * texture(material.diffuse, tex_coord);
-	vec4 specular = light.specular * (spec * material.specular);
+	vec4 ambient  = light.ambient  * (texture(material.diffuse, tex_coord));
+	vec4 diffuse  = light.diffuse  * (texture(material.diffuse, tex_coord)  * diff);
+	vec4 specular = light.specular * (texture(material.specular, tex_coord) * spec);
 
 	// mix(texture(texture1, tex_coord), texture(texture2, tex_coord), 0.0) * 
 	frag_color = ambient + diffuse + specular;

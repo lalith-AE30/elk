@@ -180,13 +180,12 @@ int main()
         }
     }
 
-    GLuint texture1 = map_texture("textures/container.jpg"), texture2 = map_texture("textures/moon.jpg");
     GLuint diffuse_map = map_texture("textures/container2.png");
+    GLuint specular_map = map_texture("textures/container2_specular.png");
 
     lighting_shader.use();
-    lighting_shader.setInt("texture1", 0);
-    lighting_shader.setInt("texture2", 1);
-    lighting_shader.setInt("material.diffuse", 2);
+    lighting_shader.setInt("material.diffuse", 0);
+    lighting_shader.setInt("material.specular", 1);
 
     float dt = 0.0f;
     float last_frame = 0.0f;
@@ -236,11 +235,9 @@ int main()
             lighting_shader.use();
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture1);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, texture2);
-            glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, diffuse_map);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, specular_map);
 
             lighting_shader.setMat4("proj", proj);
             lighting_shader.setMat4("view", view);
@@ -251,8 +248,6 @@ int main()
             lighting_shader.setVec4("light.specular", light.specular);
 
             lighting_shader.setVec4("material.ambient", material.ambient);
-            lighting_shader.setVec4("material.diffuse", material.diffuse);
-            lighting_shader.setVec4("material.specular", material.specular);
             lighting_shader.setFloat("material.shininess", material.shininess);
 
             glBindVertexArray(modelVAO);
