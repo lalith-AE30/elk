@@ -48,9 +48,8 @@ GLuint map_texture(const char* filename) {
 struct {
     unsigned int scr_width;
     unsigned int scr_height;
-    float mix;
     bool capture_controller;
-} state = { 800, 600, 0.1, true };
+} state = { 800, 600, true };
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
@@ -311,10 +310,6 @@ void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
             camera.ProcessKeyboard(CameraMovement::UP, dt);
         if (bindings->key_lctrl.down())
             camera.ProcessKeyboard(CameraMovement::DOWN, dt);
-        if (bindings->key_up.down())
-            state.mix = std::min(state.mix + 0.01f, 1.0f);
-        if (bindings->key_down.down())
-            state.mix = std::max(state.mix - 0.01f, 0.0f);
         camera.ProcessMouseMovement(window);
     }
 }

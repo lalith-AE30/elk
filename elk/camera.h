@@ -88,10 +88,10 @@ public:
 	{
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
-		float xoffset = mouse_sensitivity * (xpos - last_x);
-		float yoffset = -mouse_sensitivity * (ypos - last_y);
-		last_x = xpos;
-		last_y = ypos;
+		float xoffset = mouse_sensitivity * (static_cast<float>(xpos)  - last_x);
+		float yoffset = -mouse_sensitivity * (static_cast<float>(ypos) - last_y);
+		last_x = static_cast<float>(xpos);
+		last_y = static_cast<float>(ypos);
 
 		yaw_ += xoffset;
 		pitch_ += yoffset;
