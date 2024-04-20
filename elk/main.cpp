@@ -181,10 +181,12 @@ int main()
     }
 
     GLuint texture1 = map_texture("textures/container.jpg"), texture2 = map_texture("textures/moon.jpg");
+    GLuint diffuse_map = map_texture("textures/container2.png");
 
     lighting_shader.use();
     lighting_shader.setInt("texture1", 0);
     lighting_shader.setInt("texture2", 1);
+    lighting_shader.setInt("material.diffuse", 2);
 
     float dt = 0.0f;
     float last_frame = 0.0f;
@@ -217,8 +219,16 @@ int main()
         glClearColor(0.01f, 0.0f, 0.01f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //float time = glfwGetTime();
-        //light_pos = glm::vec4(sin(time), 2.0f, cos(time), 1.0f);
+        //glm::vec3 light_color;
+        //light_color.x = sin(glfwGetTime() * 2.0f);
+        //light_color.y = sin(glfwGetTime() * 0.7f);
+        //light_color.z = sin(glfwGetTime() * 1.3f);
+
+        //glm::vec3 diffuse_color = light_color * glm::vec3(0.5f);
+        //glm::vec3 ambient_color = diffuse_color * glm::vec3(0.2f);
+
+        //light.ambient = glm::vec4(ambient_color, 1.0f);
+        //light.diffuse= glm::vec4(diffuse_color, 1.0f);
 
         glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
@@ -229,6 +239,8 @@ int main()
             glBindTexture(GL_TEXTURE_2D, texture1);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, texture2);
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, diffuse_map);
 
             lighting_shader.setMat4("proj", proj);
             lighting_shader.setMat4("view", view);
@@ -261,6 +273,8 @@ int main()
 
             light_source_shader.setMat4("proj", proj);
             light_source_shader.setMat4("view", view);
+
+            light_source_shader.setVec4("light_color", light.diffuse);
 
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(light.pos));
