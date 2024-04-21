@@ -241,7 +241,7 @@ GLuint loadTexture(const char* filename) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
-        std::cout << "Failed to load texture" << std::endl;
+        std::cout << "Failed to load texture " << filename << ". Reason: " << stbi_failure_reason() << std::endl;
         return 0;
     }
     stbi_image_free(data);

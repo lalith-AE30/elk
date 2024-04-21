@@ -1,0 +1,3 @@
+#ifndef WINDOW_CALLBACK_H
+#define WINDOW_CALLBACK_H
+#endif // !WINDOW_CALLBACK_H
