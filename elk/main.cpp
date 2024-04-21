@@ -6,12 +6,17 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
-#include <fstream>
-#include <vector>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #include <format>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 #include "camera.h"
+#include "model_loader.h"
 #include "shader.h"
 #include "shader_utils.h"
 #include "stb_image.h"
@@ -60,132 +65,15 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    Shader directional_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_dir.glsl");
-    Shader point_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_point.glsl");
     Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
     Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
-    float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-    };
-    glm::vec3 cube_positions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f,  2.0f, -2.5f),
-        glm::vec3(1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-
-    GLuint VBO, modelVAO, lightVAO;
-    {
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        {
-            glGenVertexArrays(1, &modelVAO);
-
-            glBindVertexArray(modelVAO);
-
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(0);
-
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-            glEnableVertexAttribArray(1);
-
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-            glEnableVertexAttribArray(2);
-        }
-
-        {
-            glGenVertexArrays(1, &lightVAO);
-            glBindVertexArray(lightVAO);
-
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(0);
-        }
-    }
-
-    GLuint diffuse_map = LoadTexture("textures/container2.png");
-    GLuint specular_map = LoadTexture("textures/lighting_maps_specular_color.png");
-    GLuint emission_map = LoadTexture("textures/radioactive.png");
-
-    directional_light_shader.use();
-    directional_light_shader.setInt("material.diffuse", 0);
-    directional_light_shader.setInt("material.specular", 1);
-    directional_light_shader.setInt("material.emission", 2);
-
-    point_light_shader.use();
-    point_light_shader.setInt("material.diffuse", 0);
-    point_light_shader.setInt("material.specular", 1);
-    point_light_shader.setInt("material.emission", 2);
-
-    lights_shader.use();
-    lights_shader.setInt("material.diffuse", 0);
-    lights_shader.setInt("material.specular", 1);
-    lights_shader.setInt("material.emission", 2);
+    Model backpack("models/backpack/backpack.obj");
 
     float dt = 0.0f;
     float last_frame = 0.0f;
 
     Bindings bindings = generate_bindings(window);
-
-    Material material = {
-        diffuse_map,
-        specular_map,
-        emission_map,
-        32.0f
-    };
-
 
     DirectionalLight dir_light = {
         .dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
@@ -240,67 +128,30 @@ int main()
 
         glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)window_state.scr_width / (float)window_state.scr_height, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        {
-            lights_shader.use();
 
-            lights_shader.setMat4("proj", proj);
-            lights_shader.setMat4("view", view);
+        lights_shader.use();
+        
+        lights_shader.setMat4("proj", proj);
+        lights_shader.setMat4("view", view);
+        lights_shader.setMat4("model", glm::mat4(1.0f));
 
-            updateMaterialShader(
-                lights_shader,
-                material,
-                spot_light,
-                point_lights,
-                dir_light,
-                time,
-                true
-            );
+        lights_shader.setVec4("dir_light.dir",      dir_light.dir);
+        lights_shader.setVec4("dir_light.ambient",  dir_light.ambient);
+        lights_shader.setVec4("dir_light.diffuse",  dir_light.diffuse);
+        lights_shader.setVec4("dir_light.specular", dir_light.specular);
 
-            glBindVertexArray(modelVAO);
-            for (unsigned int i = 0; i < 10; i++)
-            {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, cube_positions[i]);
-                float angle = 20.0f * i;
-                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                lights_shader.setMat4("model", model);
-
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-        }
-
-        {
-            light_source_shader.use();
-
-            light_source_shader.setMat4("proj", proj);
-            light_source_shader.setMat4("view", view);
-
-            light_source_shader.setVec4("light_color", point_light.diffuse);
-
-            for (int i = 0; i < 4; i++) {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(point_lights[i].pos));
-                model = glm::scale(model, glm::vec3(0.2f));
-                light_source_shader.setMat4("model", model);
-
-                glBindVertexArray(lightVAO);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-        }
+        updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
+        backpack.draw(lights_shader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &modelVAO);
-    glDeleteBuffers(1, &VBO);
-
     glfwTerminate();
     return 0;
 }
 
-void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
-{
+void processInput(GLFWwindow* window, Bindings* const bindings, float dt) {
     if (bindings->key_esc.clicked()) {
         if (!window_state.capture_controller) {
             glfwSetWindowShouldClose(window, true);

@@ -31,9 +31,8 @@ struct DirLight {
 };
 
 struct Material {
-    sampler2D diffuse;
-    sampler2D specular;
-	sampler2D emission;
+    sampler2D texture_diffuse1;
+    sampler2D texture_specular1;
     float shininess;
 };
 
@@ -54,8 +53,8 @@ uniform DirLight dir_light;
 uniform Material material;
 
 vec4 norm = normalize(normal);
-vec4 specular_s = texture(material.specular, tex_coord);
-vec4 diffuse_s = texture(material.diffuse, tex_coord);
+vec4 specular_s = texture(material.texture_specular1, tex_coord);
+vec4 diffuse_s = texture(material.texture_diffuse1, tex_coord);
 vec4 ambient_s = diffuse_s;
 
 vec4 calcPointLight(PointLight light) {
@@ -108,20 +107,19 @@ vec4 calcDirLight(DirLight light) {
 	vec4 reflect_dir = reflect(-light_dir, norm);
 
 	float diff = max(dot(norm, light_dir), 0.0);
-	float spec = pow(max(dot(normalize(-pos), reflect_dir), 0.0), material.shininess);
+	float spec = pow(max(dot(normalize(-pos), reflect_dir), 0.0), 3.0);
 
 	vec4 ambient  = light.ambient  * (ambient_s);
 	vec4 diffuse  = light.diffuse  * (diffuse_s  * diff);
 	vec4 specular = light.specular * (specular_s * spec);
 
-	return ambient + diffuse + specular;
+	return ambient + diffuse + 1e-15 * specular;
 }
 
 void main() {
-	vec4 emission = texture(material.emission, tex_coord);
 	vec4 spot = calcSpotLight(spot_light);
 	vec4 dir = calcDirLight(dir_light);
-	frag_color = spot + emission;
+	frag_color = spot + dir;
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		frag_color += calcPointLight(point_lights[i]);
 	}

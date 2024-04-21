@@ -155,6 +155,7 @@ xcopy /y $(ProjectDir)textures\ $(OutDir)textures\</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="model_loader.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shader_utils.h" />
     <ClInclude Include="user_input.h" />

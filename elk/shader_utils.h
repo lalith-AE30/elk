@@ -51,45 +51,7 @@ void setVisibility(SpotLight& light, float distance) {
     light.visibility = glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));
 }
 
-void updateMaterialShader(Shader& shader, Material& material, DirectionalLight& light, float time, bool disable_emission = false) {
-    shader.setVec4("light.dir", light.dir);
-    shader.setVec4("light.ambient", light.ambient);
-    shader.setVec4("light.diffuse", light.diffuse);
-    shader.setVec4("light.specular", light.specular);
-
-    shader.setFloat("time", time);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.specular);
-    if (!disable_emission) {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, material.emission);
-    }
-    shader.setFloat("material.shininess", material.shininess);
-}
-void updateMaterialShader(Shader& shader, Material& material, PointLight& light, float time, bool disable_emission = false) {
-    shader.setVec4("light.pos", light.pos);
-    shader.setVec4("light.ambient", light.ambient);
-    shader.setVec4("light.diffuse", light.diffuse);
-    shader.setVec4("light.specular", light.specular);
-
-    shader.setVec3("light.visibility", light.visibility);
-
-    shader.setFloat("time", time);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.specular);
-    if (!disable_emission) {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, material.emission);
-    }
-    shader.setFloat("material.shininess", material.shininess);
-}
-void updateMaterialShader(Shader& shader, Material& material, SpotLight& light, float time, bool disable_emission = false) {
+void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, float time, bool disable_emission = false) {
     shader.setVec4("spot_light.pos", light.pos);
     shader.setVec4("spot_light.dir", light.dir);
     shader.setFloat("spot_light.soft_cutoff", light.soft_cutoff);
@@ -102,23 +64,15 @@ void updateMaterialShader(Shader& shader, Material& material, SpotLight& light, 
 
     shader.setFloat("time", time);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.specular);
-    if (!disable_emission) {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, material.emission);
-    }
-    shader.setFloat("material.shininess", material.shininess);
+    shader.setFloat("material.shininess", shininess);
 }
 void updateMaterialShader(
     Shader& shader,
-    Material& material,
     SpotLight& spot_light,
     PointLight point_lights[],
     DirectionalLight& dir_light,
-    float time,
+    float shininess = 32.0f,
+    float time = 0.0f,
     bool disable_emission = false
 ) {
     shader.setVec4("spot_light.pos", spot_light.pos);
@@ -146,44 +100,6 @@ void updateMaterialShader(
 
     shader.setFloat("time", time);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.specular);
-    if (!disable_emission) {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, material.emission);
-    }
-    shader.setFloat("material.shininess", material.shininess);
+    shader.setFloat("material.shininess", shininess);
 }
-
-GLuint LoadTexture(const char* filename) {
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-        return -1;
-    }
-    stbi_image_free(data);
-    return texture;
-}
-
 #endif
