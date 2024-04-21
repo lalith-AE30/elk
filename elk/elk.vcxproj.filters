@@ -52,13 +52,13 @@
     <None Include="shaders\light_vertex.glsl">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="cubes_fragment_dir.glsl">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\cubes_fragment_point.glsl">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shaders\cubes_fragment_spot.glsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\cubes_fragment_dir.glsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
