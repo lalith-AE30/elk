@@ -64,6 +64,7 @@
     <None Include="shaders\cubes_fragment_dir.glsl">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png">
