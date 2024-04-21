@@ -63,17 +63,15 @@ int main()
             std::cout << "Failed to initialize GLAD" << std::endl;
             return -1;
         }
+        glEnable(GL_DEPTH_TEST);
     }
 
-    glEnable(GL_DEPTH_TEST);
 
     Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
     Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
-    Model backpack("models/backpack/backpack.obj");
+    Model anime_girl("models/anime_girl/D0901D64.obj");
 
-    float dt = 0.0f;
-    float last_frame = 0.0f;
 
     Bindings bindings = generate_bindings(window);
 
@@ -112,6 +110,8 @@ int main()
         point_lights[i].pos = glm::vec4(point_light_positions[i], 1.0f);
     }
 
+    float dt = 0.0f;
+    float last_frame = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
         float current_frame = static_cast<float>(glfwGetTime());
@@ -128,6 +128,9 @@ int main()
 
         float time = static_cast<float>(glfwGetTime());
 
+        glm::mat4 model(1.0f);
+        model = glm::scale(model, glm::vec3(0.1f));
+        model = glm::translate(model, glm::vec3(0.0f, -80.0f, 0.0f));
         glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)window_state.scr_width / (float)window_state.scr_height, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
@@ -135,7 +138,7 @@ int main()
         
         lights_shader.setMat4("proj", proj);
         lights_shader.setMat4("view", view);
-        lights_shader.setMat4("model", glm::mat4(1.0f));
+        lights_shader.setMat4("model", model);
 
         lights_shader.setVec4("dir_light.dir",      dir_light.dir);
         lights_shader.setVec4("dir_light.ambient",  dir_light.ambient);
@@ -143,7 +146,7 @@ int main()
         lights_shader.setVec4("dir_light.specular", dir_light.specular);
 
         updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
-        backpack.draw(lights_shader);
+        anime_girl.draw(lights_shader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

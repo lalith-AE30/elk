@@ -41,6 +41,9 @@
     <ClInclude Include="model_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="window_callbacks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\cubes_fragment.glsl">

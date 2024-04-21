@@ -125,7 +125,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y $(ProjectDir)shaders\  $(OutDir)shaders\
-xcopy /y $(ProjectDir)textures\ $(OutDir)textures\</Command>
+xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,6 +160,7 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     <ClInclude Include="shader.h" />
     <ClInclude Include="shader_utils.h" />
     <ClInclude Include="user_input.h" />
+    <ClInclude Include="window_callbacks.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

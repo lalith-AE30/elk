@@ -1,0 +1,94 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# www.cadnav.com
+
+newmtl Tex_0010_1_dds
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 0.0000 0.0000 0.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka yfsyly (16).jpg
+	map_Kd yfsyly (16).jpg
+	map_Ks yfsyly (18).jpg
+	map_d yfsyly (16).jpg
+
+newmtl Tex_0012_1_dds
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka yfsyly (21).jpg
+	map_Kd yfsyly (21).jpg
+	map_Ks yfsyly (22).jpg
+
+newmtl Tex_0006_1_dds
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0078 0.0078 0.0078
+	Kd 0.0078 0.0078 0.0078
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka yfsyly (2).jpg
+	map_Kd yfsyly (2).jpg
+	map_Ks yfsyly (3).jpg
+	map_d yfsyly (2).jpg
+
+newmtl Tex_0008_1_dds
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka yfsyly (6).jpg
+	map_Kd yfsyly (6).jpg
+	map_Ks yfsyly (9).jpg
+
+newmtl Tex_0009_1_dds
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka yfsyly (13).jpg
+	map_Kd yfsyly (13).jpg
+	map_Ks yfsyly (13).jpg
+
+newmtl Tex_0051_0_dds
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0000 0.0000 0.0000
+	Kd 0.0000 0.0000 0.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka yfsyly (24).jpg
+	map_Kd yfsyly (24).jpg
+	map_d yfsyly (24).jpg
