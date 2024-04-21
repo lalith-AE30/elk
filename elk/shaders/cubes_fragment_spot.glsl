@@ -1,6 +1,9 @@
 #version 330 core
 struct Light {
 	vec4 pos;
+	vec4 dir;
+	float soft_cutoff;
+	float cutoff;
 	
 	vec4 ambient;
     vec4 diffuse;
@@ -31,11 +34,11 @@ uniform Material material;
 
 void main() {
 	vec4 norm = normalize(normal);
-	vec4 ray = (view * light.pos) - pos;
+	vec4 ray = pos - light.pos;
 	vec4 light_dir = normalize(ray);
-	vec4 reflect_dir = reflect(-light_dir, norm);
+	vec4 reflect_dir = reflect(light_dir, norm);
 
-	float diff = max(dot(norm, light_dir), 0.0);
+	float diff = max(dot(norm, -light_dir), 0.0);
 	float spec = pow(max(dot(normalize(-pos), reflect_dir), 0.0), material.shininess);
 
 	vec4 ambient  = light.ambient  * (texture(material.diffuse, tex_coord));
@@ -49,5 +52,8 @@ void main() {
 		light.visibility.z * length(ray) * length(ray)
 	);
 
-	frag_color = (ambient + diffuse + specular) * attenuation + emission;
+	float val = dot(light_dir, light.dir);
+	float I = clamp((val-light.cutoff)/(light.soft_cutoff-light.cutoff), 0.0, 1.0);
+
+	frag_color = (ambient + diffuse + specular) * attenuation * I + emission;
 }

@@ -153,6 +153,7 @@ xcopy /y $(ProjectDir)textures\ $(OutDir)textures\</Command>
     <None Include="cubes_fragment_dir.glsl" />
     <None Include="shaders\cubes_fragment.glsl" />
     <None Include="shaders\cubes_fragment_point.glsl" />
+    <None Include="shaders\cubes_fragment_spot.glsl" />
     <None Include="shaders\cubes_vertex.glsl" />
     <None Include="shaders\light_fragment.glsl" />
     <None Include="shaders\light_vertex.glsl" />
@@ -160,6 +161,11 @@ xcopy /y $(ProjectDir)textures\ $(OutDir)textures\</Command>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />
     <Image Include="textures\container.jpg" />
+    <Image Include="textures\container2.png" />
+    <Image Include="textures\container2_specular.png" />
+    <Image Include="textures\lighting_maps_specular_color.png" />
+    <Image Include="textures\matrix.jpg" />
+    <Image Include="textures\radioactive.png" />
     <Image Include="textures\wall.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

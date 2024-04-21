@@ -21,7 +21,8 @@ struct {
     unsigned int scr_width;
     unsigned int scr_height;
     bool capture_controller;
-} state = { 800, 600, true };
+    float distance;
+} window_state = { 800, 600, true, 50.0f };
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
@@ -38,7 +39,7 @@ int main()
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     }
 
-    GLFWwindow* window = glfwCreateWindow(state.scr_width, state.scr_height, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(window_state.scr_width, window_state.scr_height, "LearnOpenGL", NULL, NULL);
     {
         if (window == NULL)
         {
@@ -61,6 +62,7 @@ int main()
 
     Shader directional_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_dir.glsl");
     Shader point_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_point.glsl");
+    Shader spot_light_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment_spot.glsl");
     Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
     float vertices[] = {
@@ -167,6 +169,11 @@ int main()
     point_light_shader.setInt("material.specular", 1);
     point_light_shader.setInt("material.emission", 2);
 
+    spot_light_shader.use();
+    spot_light_shader.setInt("material.diffuse", 0);
+    spot_light_shader.setInt("material.specular", 1);
+    spot_light_shader.setInt("material.emission", 2);
+
     float dt = 0.0f;
     float last_frame = 0.0f;
 
@@ -179,19 +186,30 @@ int main()
         32.0f
     };
 
-    Light light = {
-         glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
-         glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
-         glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
-         glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-    };
 
     DirectionalLight dir_light = {
-     glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
-     glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
-     glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
-     glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+        .dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
+        .ambient = glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
+        .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+        .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
     };
+    PointLight point_light = {
+        .pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
+        .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+        .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+        .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
+    SpotLight spot_light = {
+     .pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+     .dir = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f),
+     .soft_cutoff = glm::cos(glm::radians(20.0f)),
+     .cutoff = glm::cos(glm::radians(22.5f)),
+     .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+     .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+     .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
+
+    setVisibility(point_light, window_state.distance);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -200,21 +218,65 @@ int main()
         last_frame = current_frame;
 
         processInput(window, &bindings, dt);
+        setVisibility(point_light, window_state.distance);
+        setVisibility(spot_light, window_state.distance);
 
-        glClearColor(0.01f, 0.0f, 0.01f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float time = static_cast<float>(glfwGetTime());
 
-        glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
+        glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)window_state.scr_width / (float)window_state.scr_height, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
+        //{
+        //    directional_light_shader.use();
+
+        //    directional_light_shader.setMat4("proj", proj);
+        //    directional_light_shader.setMat4("view", view);
+
+        //    updateMaterialShader(directional_light_shader, material, dir_light, time, true);
+
+        //    glBindVertexArray(modelVAO);
+        //    for (unsigned int i = 0; i < 10; i++)
+        //    {
+        //        glm::mat4 model = glm::mat4(1.0f);
+        //        model = glm::translate(model, cube_positions[i]);
+        //        float angle = 20.0f * i;
+        //        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        //        directional_light_shader.setMat4("model", model);
+
+        //        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //    }
+        //}
+
+        //{
+        //    point_light_shader.use();
+
+        //    point_light_shader.setMat4("proj", proj);
+        //    point_light_shader.setMat4("view", view);
+
+        //    updateMaterialShader(point_light_shader, material, point_light, time, true);
+
+        //    glBindVertexArray(modelVAO);
+        //    for (unsigned int i = 0; i < 10; i++)
+        //    {
+        //        glm::mat4 model = glm::mat4(1.0f);
+        //        model = glm::translate(model, cube_positions[i]);
+        //        float angle = 20.0f * i;
+        //        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        //        point_light_shader.setMat4("model", model);
+
+        //        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //    }
+        //}
+
         {
-            directional_light_shader.use();
+            spot_light_shader.use();
 
-            directional_light_shader.setMat4("proj", proj);
-            directional_light_shader.setMat4("view", view);
+            spot_light_shader.setMat4("proj", proj);
+            spot_light_shader.setMat4("view", view);
 
-            updateMaterialShader(directional_light_shader, material, dir_light, time);
+            updateMaterialShader(spot_light_shader, material, spot_light, time, true);
 
             glBindVertexArray(modelVAO);
             for (unsigned int i = 0; i < 10; i++)
@@ -222,29 +284,8 @@ int main()
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, cube_positions[i]);
                 float angle = 20.0f * i;
-                model = glm::rotate(model, time + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                directional_light_shader.setMat4("model", model);
-
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
-        }
-
-        {
-            point_light_shader.use();
-
-            point_light_shader.setMat4("proj", proj);
-            point_light_shader.setMat4("view", view);
-
-            updateMaterialShader(point_light_shader, material, light, time);
-
-            glBindVertexArray(modelVAO);
-            for (unsigned int i = 0; i < 10; i++)
-            {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, cube_positions[i]);
-                float angle = 20.0f * i;
-                model = glm::rotate(model, time + glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                point_light_shader.setMat4("model", model);
+                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                spot_light_shader.setMat4("model", model);
 
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
@@ -256,10 +297,10 @@ int main()
             light_source_shader.setMat4("proj", proj);
             light_source_shader.setMat4("view", view);
 
-            light_source_shader.setVec4("light_color", light.diffuse);
+            light_source_shader.setVec4("light_color", point_light.diffuse);
 
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(light.pos));
+            model = glm::translate(model, glm::vec3(point_light.pos));
             model = glm::scale(model, glm::vec3(0.2f));
             light_source_shader.setMat4("model", model);
 
@@ -281,19 +322,20 @@ int main()
 void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
 {
     if (bindings->key_esc.clicked()) {
-        if (!state.capture_controller) {
+        if (!window_state.capture_controller) {
             glfwSetWindowShouldClose(window, true);
         }
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetScrollCallback(window, NULL);
-        state.capture_controller = false;
+        window_state.capture_controller = false;
     }
-    if (!state.capture_controller && bindings->mouse_left.clicked()) {
+    if (!window_state.capture_controller && bindings->mouse_left.clicked()) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetScrollCallback(window, scrollCallback);
-        state.capture_controller = true;
+        camera.refocus = true;
+        window_state.capture_controller = true;
     }
-    if (state.capture_controller) {
+    if (window_state.capture_controller) {
         if (bindings->key_w.down())
             camera.ProcessKeyboard(CameraMovement::FORWARD, dt);
         if (bindings->key_s.down())
@@ -306,14 +348,18 @@ void processInput(GLFWwindow* window, Bindings* const bindings, float dt)
             camera.ProcessKeyboard(CameraMovement::UP, dt);
         if (bindings->key_lctrl.down())
             camera.ProcessKeyboard(CameraMovement::DOWN, dt);
+        if (bindings->key_up.down())
+            window_state.distance += 5.0f;
+        if (bindings->key_down.down())
+            window_state.distance = std::max(0.0f, window_state.distance - 5.0f);
         camera.ProcessMouseMovement(window);
     }
 }
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    state.scr_width = width;
-    state.scr_height = height;
+    window_state.scr_width = width;
+    window_state.scr_height = height;
     glViewport(0, 0, width, height);
 }
 

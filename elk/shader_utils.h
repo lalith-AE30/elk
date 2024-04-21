@@ -11,14 +11,6 @@ struct Material {
     float shininess;
 };
 
-struct Light {
-    glm::vec4 pos;
-
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
-};
-
 struct DirectionalLight {
     glm::vec4 dir;
 
@@ -27,23 +19,37 @@ struct DirectionalLight {
     glm::vec4 specular;
 };
 
-void updateMaterialShader(Shader& shader, Material& material, Light& light, float time) {
-    shader.setVec4("light.pos", light.pos);
-    shader.setVec4("light.ambient", light.ambient);
-    shader.setVec4("light.diffuse", light.diffuse);
-    shader.setVec4("light.specular", light.specular);
+struct PointLight {
+    glm::vec4 pos;
 
-    shader.setFloat("time", time);
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, material.diffuse);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, material.specular);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, material.emission);
-    shader.setFloat("material.shininess", material.shininess);
+    glm::vec3 visibility;
+};
+
+struct SpotLight {
+    glm::vec4 pos;
+    glm::vec4 dir;
+    float soft_cutoff;
+    float cutoff;
+
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
+
+    glm::vec3 visibility;
+};
+
+void setVisibility(PointLight& light, float distance) {
+    light.visibility = glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));
 }
-void updateMaterialShader(Shader& shader, Material& material, DirectionalLight& light, float time) {
+void setVisibility(SpotLight& light, float distance) {
+    light.visibility = glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));
+}
+
+void updateMaterialShader(Shader& shader, Material& material, DirectionalLight& light, float time, bool disable_emission = false) {
     shader.setVec4("light.dir", light.dir);
     shader.setVec4("light.ambient", light.ambient);
     shader.setVec4("light.diffuse", light.diffuse);
@@ -55,8 +61,53 @@ void updateMaterialShader(Shader& shader, Material& material, DirectionalLight& 
     glBindTexture(GL_TEXTURE_2D, material.diffuse);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, material.specular);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, material.emission);
+    if (!disable_emission) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, material.emission);
+    }
+    shader.setFloat("material.shininess", material.shininess);
+}
+void updateMaterialShader(Shader& shader, Material& material, PointLight& light, float time, bool disable_emission = false) {
+    shader.setVec4("light.pos", light.pos);
+    shader.setVec4("light.ambient", light.ambient);
+    shader.setVec4("light.diffuse", light.diffuse);
+    shader.setVec4("light.specular", light.specular);
+
+    shader.setVec3("light.visibility", light.visibility);
+
+    shader.setFloat("time", time);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, material.diffuse);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, material.specular);
+    if (!disable_emission) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, material.emission);
+    }
+    shader.setFloat("material.shininess", material.shininess);
+}
+void updateMaterialShader(Shader& shader, Material& material, SpotLight& light, float time, bool disable_emission = false) {
+    shader.setVec4("light.pos", light.pos);
+    shader.setVec4("light.dir", light.dir);
+    shader.setFloat("light.soft_cutoff", light.soft_cutoff);
+    shader.setFloat("light.cutoff", light.cutoff);
+    shader.setVec4("light.ambient", light.ambient);
+    shader.setVec4("light.diffuse", light.diffuse);
+    shader.setVec4("light.specular", light.specular);
+
+    shader.setVec3("light.visibility", light.visibility);
+
+    shader.setFloat("time", time);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, material.diffuse);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, material.specular);
+    if (!disable_emission) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, material.emission);
+    }
     shader.setFloat("material.shininess", material.shininess);
 }
 
