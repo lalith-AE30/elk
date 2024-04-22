@@ -32,7 +32,17 @@ struct DirLight {
 
 struct Material {
     sampler2D texture_diffuse1;
+	sampler2D texture_diffuse2;
+	sampler2D texture_diffuse3;
+	sampler2D texture_diffuse4;
+	sampler2D texture_diffuse5;
+	sampler2D texture_diffuse6;
     sampler2D texture_specular1;
+	sampler2D texture_specular2;
+	sampler2D texture_specular3;
+	sampler2D texture_specular4;
+	sampler2D texture_specular5;
+	sampler2D texture_specular6;
     float shininess;
 };
 
@@ -53,11 +63,8 @@ uniform DirLight dir_light;
 uniform Material material;
 
 vec4 norm = normalize(normal);
-vec4 specular_s = texture(material.texture_specular1, tex_coord);
-vec4 diffuse_s = texture(material.texture_diffuse1, tex_coord);
-vec4 ambient_s = diffuse_s;
 
-vec4 calcPointLight(PointLight light) {
+vec4 calcPointLight(PointLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s) {
 	vec4 ray = (view * light.pos) - pos;
 	vec4 light_dir = normalize(ray);
 	vec4 reflect_dir = reflect(-light_dir, norm);
@@ -78,7 +85,7 @@ vec4 calcPointLight(PointLight light) {
 	return (ambient + diffuse + specular) * attenuation;
 }
 
-vec4 calcSpotLight(SpotLight light) {
+vec4 calcSpotLight(SpotLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s) {
 	vec4 ray = pos - light.pos;
 	vec4 light_dir = normalize(ray);
 	vec4 reflect_dir = reflect(light_dir, norm);
@@ -102,7 +109,7 @@ vec4 calcSpotLight(SpotLight light) {
 	return (ambient + diffuse + specular) * attenuation * I;
 };
 
-vec4 calcDirLight(DirLight light) {
+vec4 calcDirLight(DirLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s) {
 	vec4 light_dir = -normalize(view * light.dir);
 	vec4 reflect_dir = reflect(-light_dir, norm);
 
@@ -113,14 +120,16 @@ vec4 calcDirLight(DirLight light) {
 	vec4 diffuse  = light.diffuse  * (diffuse_s  * diff);
 	vec4 specular = light.specular * (specular_s * spec);
 
-	return ambient + diffuse + 1e-15 * specular;
+	return ambient + diffuse + specular;
 }
 
 void main() {
-	vec4 spot = calcSpotLight(spot_light);
-	vec4 dir = calcDirLight(dir_light);
+	vec4 specular_s = texture(material.texture_specular1, tex_coord);
+	vec4 diffuse_s  =  texture(material.texture_diffuse1, tex_coord);
+	vec4 spot = calcSpotLight(spot_light, specular_s, diffuse_s, diffuse_s);
+	vec4 dir = calcDirLight(dir_light, specular_s, diffuse_s, diffuse_s);
 	frag_color = spot + dir;
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-		frag_color += calcPointLight(point_lights[i]);
+		frag_color += calcPointLight(point_lights[i], specular_s, diffuse_s, diffuse_s);
 	}
 }

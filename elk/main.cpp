@@ -29,7 +29,8 @@ struct {
     unsigned int scr_height;
     bool capture_controller;
     float distance;
-} window_state = { 800, 600, true, 50.0f };
+    int mesh;
+} window_state = { 800, 600, true, 50.0f , -1};
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
@@ -70,8 +71,7 @@ int main()
     Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
     Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
-    Model anime_girl("models/anime_girl/D0901D64.obj");
-
+    Model model_3d("models/anime_girl/D0901D64.obj");
 
     Bindings bindings = generate_bindings(window);
 
@@ -145,8 +145,9 @@ int main()
         lights_shader.setVec4("dir_light.diffuse",  dir_light.diffuse);
         lights_shader.setVec4("dir_light.specular", dir_light.specular);
 
+        dir_light.dir = glm::vec4(sin(time), -1.0f, cos(time), 0.0f);
         updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
-        anime_girl.draw(lights_shader);
+        model_3d.draw(lights_shader, window_state.mesh);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -184,10 +185,14 @@ void processInput(GLFWwindow* window, Bindings* const bindings, float dt) {
             camera.ProcessKeyboard(CameraMovement::UP, dt);
         if (bindings->key_lctrl.down())
             camera.ProcessKeyboard(CameraMovement::DOWN, dt);
-        if (bindings->key_up.down())
-            window_state.distance += 5.0f;
-        if (bindings->key_down.down())
-            window_state.distance = std::max(0.0f, window_state.distance - 5.0f);
+        //if (bindings->key_up.down())
+        //    window_state.distance += 5.0f;
+        //if (bindings->key_down.down())
+        //    window_state.distance = std::max(0.0f, window_state.distance - 5.0f);
+        if (bindings->key_up.clicked())
+            window_state.mesh += 1;
+        if (bindings->key_down.clicked())
+            window_state.mesh -= 1;
         camera.ProcessMouseMovement(window);
     }
 }
