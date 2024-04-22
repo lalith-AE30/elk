@@ -117,7 +117,12 @@ public:
     Model(const char* path) {
         loadModel(path);
     }
-    void draw(Shader& shader) {
+    void draw(Shader& shader, int mesh_nr = -1) {
+        // TODO Add transforms to each mesh, as they currently all render at origin
+        if (mesh_nr > -1) {
+            meshes[mesh_nr].draw(shader);
+            return;
+        }
         for (auto& mesh : meshes) {
             mesh.draw(shader);
         }
