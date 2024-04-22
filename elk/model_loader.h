@@ -23,7 +23,7 @@
 #include "stb_image.h"
 #endif
 
-GLuint loadTexture(const char*);
+GLuint loadTexture(const char*, bool = true);
 
 struct Vertex {
     glm::vec3 pos;
@@ -32,7 +32,7 @@ struct Vertex {
 };
 
 struct Texture {
-    GLuint id;
+    GLuint id = 0;
     std::string type;
     std::string path;
 };
@@ -114,7 +114,8 @@ private:
 class Model
 {
 public:
-    Model(const char* path) {
+    Model(const char* path, bool vertically_flip_textures = true) {
+        vertical_flip = vertically_flip_textures;
         loadModel(path);
     }
     void draw(Shader& shader, int mesh_nr = -1) {
@@ -131,6 +132,7 @@ private:
     std::vector<Texture> textures_loaded;
     std::vector<Mesh> meshes;
     std::string directory;
+    bool vertical_flip;
 
     void loadModel(std::string path) {
         Assimp::Importer import;
@@ -218,7 +220,7 @@ private:
             }
             if (!skip) {   // if texture hasn't been loaded already, load it
                 Texture texture;
-                texture.id = loadTexture(std::format("{}/{}", directory, str.C_Str()).c_str());
+                texture.id = loadTexture(std::format("{}/{}", directory, str.C_Str()).c_str(), vertical_flip);
                 texture.type = type_name;
                 texture.path = str.C_Str();
                 textures.push_back(texture);
@@ -229,7 +231,7 @@ private:
     }
 };
 
-GLuint loadTexture(const char* filename) {
+GLuint loadTexture(const char* filename, bool vertical_flip) {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -241,7 +243,8 @@ GLuint loadTexture(const char* filename) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
+    if (vertical_flip)
+     stbi_set_flip_vertically_on_load(true);
 
     unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3);
     if (data) {

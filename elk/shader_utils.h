@@ -71,7 +71,7 @@ void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, flo
 void updateMaterialShader(
     Shader& shader,
     SpotLight& spot_light,
-    PointLight point_lights[],
+    std::vector<PointLight>& point_lights,
     DirectionalLight& dir_light,
     float shininess = 32.0f,
     float time = 0.0f,

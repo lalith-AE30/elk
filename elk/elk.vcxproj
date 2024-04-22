@@ -153,6 +153,7 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
   <ItemGroup>
     <ClCompile Include="external\glad\src\glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="window_callbacks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />

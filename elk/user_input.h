@@ -46,8 +46,8 @@ struct Bindings {
     KeyBind
         key_w,
         key_s,
-        key_left,
-        key_right,
+        key_a,
+        key_d,
         key_space,
         key_lctrl,
         key_esc,
@@ -56,7 +56,7 @@ struct Bindings {
         mouse_left;
 };
 
-Bindings generate_bindings(GLFWwindow* window) {
+inline Bindings generate_bindings(GLFWwindow* window) {
     Bindings bindings = {
         KeyBind(window, GLFW_KEY_W),
         KeyBind(window, GLFW_KEY_S),
@@ -71,6 +71,5 @@ Bindings generate_bindings(GLFWwindow* window) {
     };
     return bindings;
 }
-
 
 #endif // !USER_INPUT_H

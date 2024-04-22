@@ -132,8 +132,4 @@ void main() {
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		frag_color += calcPointLight(point_lights[i], specular_s, diffuse_s, diffuse_s);
 	}
-	frag_color = spot + dir;
-	specular_s = texture(material.texture_specular2, tex_coord);
-	diffuse_s = texture(  material.texture_diffuse2, tex_coord);	
-	ambient_s = diffuse_s;
 }
