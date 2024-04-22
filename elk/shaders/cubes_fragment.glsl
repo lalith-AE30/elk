@@ -32,7 +32,9 @@ struct DirLight {
 
 struct Material {
     sampler2D texture_diffuse1;
+	sampler2D texture_diffuse2;
     sampler2D texture_specular1;
+	sampler2D texture_specular2;
     float shininess;
 };
 
@@ -119,8 +121,11 @@ vec4 calcDirLight(DirLight light) {
 void main() {
 	vec4 spot = calcSpotLight(spot_light);
 	vec4 dir = calcDirLight(dir_light);
-	frag_color = spot + dir;
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		frag_color += calcPointLight(point_lights[i]);
 	}
+	frag_color = spot + dir;
+	specular_s = texture(material.texture_specular2, tex_coord);
+	diffuse_s = texture(  material.texture_diffuse2, tex_coord);	
+	ambient_s = diffuse_s;
 }

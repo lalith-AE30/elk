@@ -18,11 +18,11 @@
 #include "model_loader.h"
 #include "shader.h"
 #include "shader_utils.h"
+#include "user_input.h"
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#endif // !STB_IMAGE_IMPLEMENTATION
-#include "user_input.h"
+#endif
 
 struct {
     unsigned int scr_width;
