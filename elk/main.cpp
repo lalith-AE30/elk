@@ -38,6 +38,7 @@ int main()
 
     GLFWwindow* window = bindWindow(800, 600, &camera, "Model Viwer");
 
+    // TODO Remove bindings control from main loop to window handler.
     Bindings bindings = generate_bindings(window);
 
     Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");

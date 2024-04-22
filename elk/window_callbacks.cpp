@@ -27,6 +27,8 @@ namespace controller {
             window_state.camera->refocus = true;
             window_state.capture_controller = true;
         }
+        // TODO Change to more efficient callbacks
+        // TODO Add better controls for modified keys.
         if (window_state.capture_controller) {
             if (bindings->key_w.down())
                 window_state.camera->ProcessKeyboard(CameraMovement::FORWARD, dt);
