@@ -20,11 +20,6 @@
 #include "shader_utils.h"
 #include "window_callbacks.h"
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#endif
-
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 int main() {
