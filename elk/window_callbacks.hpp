@@ -6,8 +6,8 @@
 
 #include <string>
 
-#include "user_input.h"
-#include "camera.h" 
+#include "user_input.hpp"
+#include "camera.hpp" 
 
 struct WindowState {
     unsigned int scr_width = 800;

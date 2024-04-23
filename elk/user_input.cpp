@@ -1,4 +1,4 @@
-#include "user_input.h"
+#include "user_input.hpp"
 
 int KeyBind::key_state() {
     switch (type_) {

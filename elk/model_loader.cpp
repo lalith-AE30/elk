@@ -1,4 +1,4 @@
-#include "model_loader.h"
+#include "model_loader.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -7,10 +7,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#endif
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
     this->vertices = vertices;

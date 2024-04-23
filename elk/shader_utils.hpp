@@ -1,6 +1,9 @@
 #ifndef SHADER_UTILS_H
 #define SHADER_UTILS_H
 
+// TODO Remove dependent function so it can be made C compatible
+#include "shader.hpp"
+
 #include <vector>
 
 struct Material {

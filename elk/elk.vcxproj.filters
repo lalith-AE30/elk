@@ -33,24 +33,30 @@
     <ClCompile Include="model_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="canvas.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
+    <ClInclude Include="shader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="user_input.h">
+    <ClInclude Include="user_input.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader_utils.h">
+    <ClInclude Include="shader_utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model_loader.h">
+    <ClInclude Include="model_loader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="window_callbacks.h">
+    <ClInclude Include="window_callbacks.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="canvas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

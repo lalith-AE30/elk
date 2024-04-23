@@ -1,3 +1,6 @@
+#define NK_IMPLEMENTATION
+#include <nuklear.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -14,14 +17,14 @@
 #include <iostream>
 #include <vector>
 
-#include "camera.h"
-#include "model_loader.h"
-#include "shader.h"
-#include "shader_utils.h"
-#include "window_callbacks.h"
+#include "camera.hpp"
+#include "model_loader.hpp"
+#include "shader.hpp"
+#include "shader_utils.hpp"
+#include "window_callbacks.hpp"
 
-
-int main() {
+// TODO Get Nuklear in here
+int pmain() {
 	glfwInit();
 	{
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -81,6 +84,8 @@ int main() {
 
 	float dt = 0.0f;
 	float last_frame = 0.0f;
+
+
 	while (!glfwWindowShouldClose(window))
 	{
 		float current_frame = static_cast<float>(glfwGetTime());

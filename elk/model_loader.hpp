@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 
-#include "shader.h"
+#include "shader.hpp"
 
 unsigned int loadTexture(const char*, bool = true);
 
