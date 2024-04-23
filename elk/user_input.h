@@ -42,6 +42,7 @@ public:
     }
 };
 
+// TODO make bindings extensible
 struct Bindings {
     KeyBind
         key_w,
@@ -55,6 +56,22 @@ struct Bindings {
         key_down,
         mouse_left;
 };
+
+inline Bindings generate_empty_binding() {
+    Bindings bindings = {
+    KeyBind(NULL, GLFW_KEY_W),
+    KeyBind(NULL, GLFW_KEY_S),
+    KeyBind(NULL, GLFW_KEY_A),
+    KeyBind(NULL, GLFW_KEY_D),
+    KeyBind(NULL, GLFW_KEY_SPACE),
+    KeyBind(NULL, GLFW_KEY_LEFT_CONTROL),
+    KeyBind(NULL, GLFW_KEY_ESCAPE),
+    KeyBind(NULL, GLFW_KEY_UP),
+    KeyBind(NULL, GLFW_KEY_DOWN),
+    KeyBind(NULL, GLFW_MOUSE_BUTTON_1, KeyType::MOUSE)
+    };
+    return bindings;
+}
 
 inline Bindings generate_bindings(GLFWwindow* window) {
     Bindings bindings = {

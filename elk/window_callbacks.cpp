@@ -1,6 +1,7 @@
 #include "window_callbacks.h"
 
 #include <iostream>
+#include <system_error>
 
 // TODO Add binding so that multiple windows can differentiate, and further hide it from user
 WindowState window_state;
@@ -92,5 +93,84 @@ GLFWwindow* bindWindow(unsigned int scr_width, unsigned int scr_height, Camera* 
     window_state.camera = camera;
 
     return window;
-
 }
+
+// TODO Add models and light setup and corresponding stuff in header
+class Scene {
+public:
+    Scene(Camera camera) {
+        //Model model_3d("models/skull/skull.obj", false);
+
+        //DirectionalLight dir_light = {
+        //    .dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
+        //    .ambient = glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
+        //    .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+        //    .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+        //};
+        //PointLight point_light = {
+        //    .pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
+        //    .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+        //    .diffuse = glm::vec4(0.7f, 0.2f, 0.2f, 1.0f),
+        //    .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+        //};
+        //SpotLight spot_light = {
+        // .pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+        // .dir = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f),
+        // .soft_cutoff = glm::cos(glm::radians(10.0f)),
+        // .cutoff = glm::cos(glm::radians(11.0f)),
+        // .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+        // .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+        // .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+        //};
+
+        //glm::vec3 point_light_positions[] = {
+        //    glm::vec3(0.7f,  0.2f,  2.0f),
+        //    glm::vec3(2.3f, -3.3f, -4.0f),
+        //    glm::vec3(-4.0f,  2.0f, -12.0f),
+        //    glm::vec3(0.0f,  0.0f, -3.0f)
+        //};
+
+        //int nr_lights = 4;
+        //std::vector<PointLight> point_lights;
+        //point_lights.resize(nr_lights);
+        //for (int i = 0; i < nr_lights; i++) {
+        //    point_lights[i] = point_light;
+        //    point_lights[i].pos = glm::vec4(point_light_positions[i], 1.0f);
+        //}
+    }
+};
+
+class Window {
+private:
+    GLFWwindow* window;
+
+public:
+    const unsigned int scr_width, scr_height;
+    Scene scene;
+    Bindings bindings;
+
+    // TODO make camera to window optional
+    Window(unsigned int scr_width, unsigned int scr_height, Camera camera, const std::string& title) : 
+        scr_width(scr_width), 
+        scr_height(scr_height),
+        scene(Scene(camera)),
+        bindings(generate_empty_binding())
+    {
+        window = glfwCreateWindow(scr_width, scr_height, title.c_str(), NULL, NULL);
+        {
+            if (window == NULL) {
+                throw std::system_error(-1, std::generic_category(), "Failed to create GLFW window");
+                glfwTerminate();
+                return;
+            }
+            glfwMakeContextCurrent(window);
+            glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+            glfwSetScrollCallback(window, scrollCallback);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) 
+                throw std::system_error(-2, std::generic_category(), "Failed to initialize GLAD");
+            glEnable(GL_DEPTH_TEST);
+        }
+        // TODO !Important make user_input.h classes available here
+    }
+};

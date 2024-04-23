@@ -27,108 +27,109 @@
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-int main()
-{
-    glfwInit();
-    {
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    }
+int main() {
+	glfwInit();
+	{
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	}
 
-    GLFWwindow* window = bindWindow(800, 600, &camera, "Model Viwer");
+	GLFWwindow* window = bindWindow(800, 600, &camera, "Model Viwer");
 
-    // TODO Remove bindings control from main loop to window handler.
-    Bindings bindings = generate_bindings(window);
+	// TODO Remove bindings control from main loop to window handler.
+	Bindings bindings = generate_bindings(window);
 
-    Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
-    Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
+	Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
+	Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
-    Model model_3d("models/anime_girl/D0901D64.obj", false);
+	Model model_3d("models/skull/skull.obj", false);
 
-    DirectionalLight dir_light = {
-        .dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
-        .ambient = glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
-        .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
-        .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-    };
-    PointLight point_light = {
-        .pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
-        .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-        .diffuse = glm::vec4(0.7f, 0.2f, 0.2f, 1.0f),
-        .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-    };
-    SpotLight spot_light = {
-     .pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-     .dir = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f),
-     .soft_cutoff = glm::cos(glm::radians(10.0f)),
-     .cutoff = glm::cos(glm::radians(11.0f)),
-     .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-     .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
-     .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-    };
+	DirectionalLight dir_light = {
+		.dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
+		.ambient = glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
+		.diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+		.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+	};
+	PointLight point_light = {
+		.pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
+		.ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+		.diffuse = glm::vec4(0.7f, 0.2f, 0.2f, 1.0f),
+		.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+	};
+	SpotLight spot_light = {
+	 .pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+	 .dir = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f),
+	 .soft_cutoff = glm::cos(glm::radians(10.0f)),
+	 .cutoff = glm::cos(glm::radians(11.0f)),
+	 .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+	 .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+	 .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+	};
 
-    glm::vec3 point_light_positions[] = {
-        glm::vec3(0.7f,  0.2f,  2.0f),
-        glm::vec3(2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3(0.0f,  0.0f, -3.0f)
-    };
+	glm::vec3 point_light_positions[] = {
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
 
-    int nr_lights = 4;
-    std::vector<PointLight> point_lights;
-    point_lights.resize(nr_lights);
-    for (int i = 0; i < nr_lights; i++) {
-        point_lights[i] = point_light;
-        point_lights[i].pos = glm::vec4(point_light_positions[i], 1.0f);
-    }
+	int nr_lights = 4;
+	std::vector<PointLight> point_lights;
+	point_lights.resize(nr_lights);
+	for (int i = 0; i < nr_lights; i++) {
+		point_lights[i] = point_light;
+		point_lights[i].pos = glm::vec4(point_light_positions[i], 1.0f);
+	}
 
-    float dt = 0.0f;
-    float last_frame = 0.0f;
-    while (!glfwWindowShouldClose(window))
-    {
-        float current_frame = static_cast<float>(glfwGetTime());
-        dt = current_frame - last_frame;
-        last_frame = current_frame;
+	float dt = 0.0f;
+	float last_frame = 0.0f;
+	while (!glfwWindowShouldClose(window))
+	{
+		float current_frame = static_cast<float>(glfwGetTime());
+		dt = current_frame - last_frame;
+		last_frame = current_frame;
 
-        WindowState state = controller::getState();
-        {
-        controller::processInput(window, &bindings, dt);
-        for (auto& point_light : point_lights)
-            setVisibility(point_light, state.distance);
-        setVisibility(spot_light, state.distance);
-        }
+		WindowState state = controller::getState();
+		{
+			controller::processInput(window, &bindings, dt);
+			for (auto& point_light : point_lights)
+				setVisibility(point_light, state.distance);
+			setVisibility(spot_light, state.distance);
+		}
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float time = static_cast<float>(glfwGetTime());
+		float time = static_cast<float>(glfwGetTime());
 
-        glm::mat4 model(1.0f);
-        model = glm::scale(model, glm::vec3(0.1f));
-        model = glm::translate(model, glm::vec3(0.0f, -80.0f, 0.0f));
-        glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), (float)state.scr_width / (float)state.scr_height, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 model(1.0f);
+		//model = glm::scale(model, glm::vec3(0.1f));
+		//model = glm::translate(model, glm::vec3(0.0f, -80.0f, 0.0f));
+		float aspect = (float)state.scr_width / (float)state.scr_height;
+		glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), aspect, 0.1f, 100.0f);
+		//proj = glm::orthoRH(-3.0f, 3.0f, -3.0f/aspect, 3.0f/aspect, 0.0f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
 
-        lights_shader.use();
-        
-        lights_shader.setMat4("proj", proj);
-        lights_shader.setMat4("view", view);
-        lights_shader.setMat4("model", model);
+		lights_shader.use();
 
-        lights_shader.setVec4("dir_light.dir",      dir_light.dir);
-        lights_shader.setVec4("dir_light.ambient",  dir_light.ambient);
-        lights_shader.setVec4("dir_light.diffuse",  dir_light.diffuse);
-        lights_shader.setVec4("dir_light.specular", dir_light.specular);
+		lights_shader.setMat4("proj", proj);
+		lights_shader.setMat4("view", view);
+		lights_shader.setMat4("model", model);
 
-        dir_light.dir = glm::vec4(sin(time), -1.0f, cos(time), 0.0f);
-        updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
-        model_3d.draw(lights_shader, state.mesh);
+		lights_shader.setVec4("dir_light.dir", dir_light.dir);
+		lights_shader.setVec4("dir_light.ambient", dir_light.ambient);
+		lights_shader.setVec4("dir_light.diffuse", dir_light.diffuse);
+		lights_shader.setVec4("dir_light.specular", dir_light.specular);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+		dir_light.dir = glm::vec4(sin(time), -1.0f, cos(time), 0.0f);
+		updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
+		model_3d.draw(lights_shader, state.mesh);
 
-    glfwTerminate();
-    return 0;
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	glfwTerminate();
+	return 0;
 }
