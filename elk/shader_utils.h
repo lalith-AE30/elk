@@ -41,11 +41,15 @@ struct SpotLight {
     glm::vec3 visibility;
 };
 
+inline glm::vec3 getVisibility(float distance) {
+    return glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));;
+}
+
 void setVisibility(PointLight& light, float distance) {
-    light.visibility = glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));
+    light.visibility = getVisibility(distance);
 }
 void setVisibility(SpotLight& light, float distance) {
-    light.visibility = glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));
+    light.visibility = getVisibility(distance);
 }
 
 void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, float time, bool disable_emission = false) {

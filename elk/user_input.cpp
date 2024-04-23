@@ -32,7 +32,9 @@ Bindings generate_empty_binding() {
     KeyBind(NULL, GLFW_KEY_ESCAPE),
     KeyBind(NULL, GLFW_KEY_UP),
     KeyBind(NULL, GLFW_KEY_DOWN),
-    KeyBind(NULL, GLFW_MOUSE_BUTTON_1, KeyType::MOUSE)
+    KeyBind(NULL, GLFW_MOUSE_BUTTON_1, KeyType::MOUSE),
+    KeyBind(NULL, GLFW_KEY_F),
+    KeyBind(NULL, GLFW_KEY_LEFT_ALT),
     };
     return bindings;
 }
@@ -48,7 +50,9 @@ Bindings generate_bindings(GLFWwindow* window) {
         KeyBind(window, GLFW_KEY_ESCAPE),
         KeyBind(window, GLFW_KEY_UP),
         KeyBind(window, GLFW_KEY_DOWN),
-        KeyBind(window, GLFW_MOUSE_BUTTON_1, KeyType::MOUSE)
+        KeyBind(window, GLFW_MOUSE_BUTTON_1, KeyType::MOUSE),
+        KeyBind(window, GLFW_KEY_F),
+        KeyBind(window, GLFW_KEY_LEFT_ALT),
     };
     return bindings;
 }

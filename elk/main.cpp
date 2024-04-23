@@ -20,7 +20,6 @@
 #include "shader_utils.h"
 #include "window_callbacks.h"
 
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 int main() {
 	glfwInit();
@@ -30,15 +29,18 @@ int main() {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	}
 
+	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	
 	GLFWwindow* window = bindWindow(800, 600, &camera, "Model Viwer");
 
 	// TODO Remove bindings control from main loop to window handler.
 	Bindings bindings = generate_bindings(window);
 
-	Shader lights_shader("shaders/cubes_vertex.glsl", "shaders/cubes_fragment.glsl");
+	Shader lights_shader("shaders/phong_vertex.glsl", "shaders/phong_fragment.glsl");
 	Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
 	Model model_3d("models/skull/skull.obj", false);
+	Model bulb("models/sphere/sphere.obj");
 
 	DirectionalLight dir_light = {
 		.dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
@@ -120,6 +122,20 @@ int main() {
 		dir_light.dir = glm::vec4(sin(time), -1.0f, cos(time), 0.0f);
 		updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
 		model_3d.draw(lights_shader, state.mesh);
+
+		light_source_shader.use();
+
+		light_source_shader.setMat4("proj", proj);
+		light_source_shader.setMat4("view", view);
+
+		light_source_shader.setVec4("light_color", point_light.diffuse * 1e-1f * state.distance); // TODO Change heuristic constant
+
+		for (auto& pos : point_light_positions) {
+			glm::mat4 model(1.0f);
+			model = glm::translate(model, pos);
+			light_source_shader.setMat4("model", model);
+			bulb.draw(light_source_shader);
+		}
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

@@ -166,11 +166,11 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     <ClInclude Include="window_callbacks.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\cubes_fragment.glsl" />
-    <None Include="shaders\cubes_fragment_dir.glsl" />
-    <None Include="shaders\cubes_fragment_point.glsl" />
-    <None Include="shaders\cubes_fragment_spot.glsl" />
-    <None Include="shaders\cubes_vertex.glsl" />
+    <None Include="shaders\phong_fragment.glsl" />
+    <None Include="shaders\phong_fragment_dir.glsl" />
+    <None Include="shaders\phong_fragment_point.glsl" />
+    <None Include="shaders\phong_fragment_spot.glsl" />
+    <None Include="shaders\phong_vertex.glsl" />
     <None Include="shaders\light_fragment.glsl" />
     <None Include="shaders\light_vertex.glsl" />
   </ItemGroup>

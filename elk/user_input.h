@@ -39,7 +39,9 @@ struct Bindings {
         key_esc,
         key_up,
         key_down,
-        mouse_left;
+        mouse_left,
+        key_f,
+        key_lalt;
 };
 
 Bindings generate_empty_binding();

@@ -41,16 +41,24 @@ namespace controller {
                 window_state.camera->ProcessKeyboard(CameraMovement::RIGHT, dt);
             if (bindings->key_space.down())
                 window_state.camera->ProcessKeyboard(CameraMovement::UP, dt);
-            if (bindings->key_lctrl.down() && !bindings->key_up.down() && !bindings->key_down.down())
+            if (bindings->key_lctrl.down())
                 window_state.camera->ProcessKeyboard(CameraMovement::DOWN, dt);
-            if (bindings->key_up.down() && bindings->key_lctrl.down())
+            if (bindings->key_up.down() && bindings->key_lalt.down())
                 window_state.distance += 5.0f;
-            if (bindings->key_down.down() && bindings->key_lctrl.down())
+            if (bindings->key_down.down() && bindings->key_lalt.down())
                 window_state.distance = std::max(0.0f, window_state.distance - 5.0f);
-            if (bindings->key_up.clicked())
+            if (bindings->key_up.clicked() && !bindings->key_lalt.down())
                 window_state.mesh += 1;
-            if (bindings->key_down.clicked())
+            if (bindings->key_down.clicked() && !bindings->key_lalt.down())
                 window_state.mesh -= 1;
+            if (bindings->key_f.clicked()) {
+                if (window_state.depth_testing)
+                    glDisable(GL_DEPTH_TEST);
+                else {
+                    glEnable(GL_DEPTH_TEST);
+                }
+                window_state.depth_testing = !window_state.depth_testing;
+            }
             window_state.camera->ProcessMouseMovement(window);
         }
     }
@@ -170,6 +178,7 @@ public:
             if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) 
                 throw std::system_error(-2, std::generic_category(), "Failed to initialize GLAD");
             glEnable(GL_DEPTH_TEST);
+            window_state.depth_testing = true;
         }
         // TODO !Important make user_input.h classes available here
     }

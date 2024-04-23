@@ -15,6 +15,7 @@ struct WindowState {
     bool capture_controller = true;
     float distance = 10.0f;
     int mesh = -1;
+    bool depth_testing = true;
     Camera* camera = NULL;
 };
 
