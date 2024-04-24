@@ -113,7 +113,10 @@ int main() {
 	float last_frame = 0.0f;
 
 	glEnable(GL_STENCIL_TEST);
+	glEnable(GL_CULL_FACE);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	// TODO Add culling controls to GUI
 
 	glm::vec4 clear_color(0.0f);
 	float scale = 1.0f;

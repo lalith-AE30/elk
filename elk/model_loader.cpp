@@ -10,6 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+// TODO Add mesh generation from just vertex positions
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
     this->vertices = vertices;
     this->indices = indices;
@@ -72,7 +73,7 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-class impl {
+class modelImpl {
 private:
     std::vector<Texture> textures_loaded;
     std::string directory;
@@ -80,7 +81,7 @@ public:
     std::vector<Mesh> meshes;
     bool vertical_flip, use_alpha;
 
-    impl(const char* path, bool vertically_flip_textures, bool use_alpha) : vertical_flip(vertically_flip_textures), use_alpha(use_alpha) {
+    modelImpl(const char* path, bool vertically_flip_textures, bool use_alpha) : vertical_flip(vertically_flip_textures), use_alpha(use_alpha) {
         loadModel(path);
     }
 
@@ -181,11 +182,11 @@ public:
     }
 };
 
-Model::Model(const char* path, bool vertically_flip_textures, bool use_alpha) : pimpl(std::make_unique<impl>(path, vertically_flip_textures, use_alpha)) { }
+Model::Model(const char* path, bool vertically_flip_textures, bool use_alpha) : pimpl(std::make_unique<modelImpl>(path, vertically_flip_textures, use_alpha)) { }
 
 void Model::draw(Shader& shader, int mesh_nr) {
     // TODO Add transforms to each mesh, as they currently all render at origin
-    if (mesh_nr > -1) {
+    if (mesh_nr > -1 && mesh_nr < pimpl->meshes.size()) {
         pimpl->meshes[mesh_nr].draw(shader);
         return;
     }

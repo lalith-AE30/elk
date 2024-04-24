@@ -40,7 +40,7 @@ private:
     void setupMesh();
 };
 
-class impl;
+class modelImpl;
 
 class Model {
 public:
@@ -51,7 +51,7 @@ public:
     void draw(Shader& shader, int mesh_nr = -1);
 
 private:
-    std::unique_ptr<impl> pimpl;
+    std::unique_ptr<modelImpl> pimpl;
 };
 
 #endif // !MODEL_LOADER_H
