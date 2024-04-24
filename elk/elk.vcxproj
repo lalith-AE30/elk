@@ -72,12 +72,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\INFINITASIUM\source\repos\elk\elk\external\imgui;$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)external\glfw-3.4\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(ProjectDir)external\imgui;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\INFINITASIUM\source\repos\elk\elk\external\imgui;$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)external\glfw-3.4\lib;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(ProjectDir)external\imgui;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
@@ -151,8 +153,14 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="canvas.c" />
     <ClCompile Include="external\glad\src\glad.c" />
+    <ClCompile Include="external\imgui\imgui.cpp" />
+    <ClCompile Include="external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui_impl_opengl3.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model_loader.cpp" />
     <ClCompile Include="user_input.cpp" />
@@ -160,7 +168,14 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.hpp" />
-    <ClInclude Include="canvas.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="external\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="external\imgui\imconfig.h" />
+    <ClInclude Include="external\imgui\imgui.h" />
+    <ClInclude Include="external\imgui\imgui_internal.h" />
+    <ClInclude Include="external\imgui\imstb_rectpack.h" />
+    <ClInclude Include="external\imgui\imstb_textedit.h" />
+    <ClInclude Include="external\imgui\imstb_truetype.h" />
     <ClInclude Include="model_loader.hpp" />
     <ClInclude Include="shader.hpp" />
     <ClInclude Include="shader_utils.hpp" />
@@ -168,14 +183,18 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     <ClInclude Include="window_callbacks.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\depth_fragment.glsl" />
-    <None Include="shaders\phong_fragment.glsl" />
-    <None Include="shaders\phong_fragment_dir.glsl" />
-    <None Include="shaders\phong_fragment_point.glsl" />
-    <None Include="shaders\phong_fragment_spot.glsl" />
-    <None Include="shaders\phong_vertex.glsl" />
-    <None Include="shaders\light_fragment.glsl" />
-    <None Include="shaders\light_vertex.glsl" />
+    <None Include="external\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="shaders\depth.frag" />
+    <None Include="shaders\normal.frag" />
+    <None Include="shaders\normal.vert" />
+    <None Include="shaders\outline.frag" />
+    <None Include="shaders\phong.frag" />
+    <None Include="shaders\phong_dir.vert" />
+    <None Include="shaders\phong_point.frag" />
+    <None Include="shaders\phong_spot.frag" />
+    <None Include="shaders\phong.vert" />
+    <None Include="shaders\light.frag" />
+    <None Include="shaders\light.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />
@@ -186,6 +205,9 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     <Image Include="textures\matrix.jpg" />
     <Image Include="textures\radioactive.png" />
     <Image Include="textures\wall.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\imgui\misc\debuggers\imgui.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

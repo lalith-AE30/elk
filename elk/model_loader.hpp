@@ -40,6 +40,8 @@ private:
     void setupMesh();
 };
 
+class impl;
+
 class Model {
 public:
     Model(const char* path, bool vertically_flip_textures = true);
@@ -49,7 +51,7 @@ public:
     void draw(Shader& shader, int mesh_nr = -1);
 
 private:
-    class impl; std::unique_ptr<impl> pimpl;
+    std::unique_ptr<impl> pimpl;
 };
 
 #endif // !MODEL_LOADER_H

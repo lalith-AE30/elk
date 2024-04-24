@@ -71,7 +71,7 @@ void Mesh::setupMesh() {
     glBindVertexArray(0);
 }
 
-class Model::impl {
+class impl {
 private:
     std::vector<Texture> textures_loaded;
     std::string directory;
@@ -169,7 +169,7 @@ public:
             }
             if (!skip) {   // if texture hasn't been loaded already, load it
                 Texture texture;
-                texture.id = loadTexture(std::format("{}/{}", directory, str.C_Str()).c_str(), vertical_flip);
+                texture.id = loadTexture(std::format("{}/{}", directory, str.C_Str()).c_str(), this->vertical_flip);
                 texture.type = type_name;
                 texture.path = str.C_Str();
                 textures.push_back(texture);

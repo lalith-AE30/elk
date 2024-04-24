@@ -16,12 +16,15 @@
     <Filter Include="Shader Files">
       <UniqueIdentifier>{75f9b145-f6c4-4f84-b586-d972219f70c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\External Source FIles">
+      <UniqueIdentifier>{678be709-45a3-4e44-bc3a-7e6da9b9dce3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\External Header Files">
+      <UniqueIdentifier>{2a1a3c83-ccad-46db-b7e9-faf3b145c342}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="window_callbacks.cpp">
@@ -33,7 +36,28 @@
     <ClCompile Include="model_loader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="canvas.c">
+    <ClCompile Include="external\imgui\imgui.cpp">
+      <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_demo.cpp">
+      <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_draw.cpp">
+      <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_tables.cpp">
+      <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="external\glad\src\glad.c">
+      <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_glfw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_opengl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,30 +80,64 @@
     <ClInclude Include="window_callbacks.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="canvas.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="external\imgui\imconfig.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\backends\imgui_impl_glfw.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_internal.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imstb_rectpack.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imstb_textedit.h">
+      <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imstb_truetype.h">
+      <Filter>Header Files\External Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\phong_fragment.glsl">
+    <None Include="external\imgui\misc\debuggers\imgui.natstepfilter" />
+    <None Include="shaders\phong_spot.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\phong_vertex.glsl">
+    <None Include="shaders\depth.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\light_fragment.glsl">
+    <None Include="shaders\light.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\light_vertex.glsl">
+    <None Include="shaders\light.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\phong_fragment_point.glsl">
+    <None Include="shaders\normal.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\phong_fragment_spot.glsl">
+    <None Include="shaders\normal.vert">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\phong_fragment_dir.glsl">
+    <None Include="shaders\outline.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\phong.frag">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\phong.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\phong_dir.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\phong_point.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -108,5 +166,8 @@
     <Image Include="textures\radioactive.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\imgui\misc\debuggers\imgui.natvis" />
   </ItemGroup>
 </Project>
