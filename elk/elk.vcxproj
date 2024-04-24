@@ -72,12 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\INFINITASIUM\source\repos\elk\elk\external\imgui;$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)external\imgui;$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)external\glfw-3.4\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(ProjectDir)external\imgui;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\INFINITASIUM\source\repos\elk\elk\external\imgui;$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)external\imgui;$(ProjectDir)external\gil\include;$(ProjectDir)external\stb_image;$(ProjectDir)external\glad\include;$(ProjectDir)external\glm-1.0.1-light;$(ProjectDir)external\glfw-3.4\include;$(ProjectDir)external\nuklear;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)external\glfw-3.4\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(ProjectDir)external\imgui;$(SourcePath)</SourcePath>
   </PropertyGroup>

@@ -7,6 +7,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
@@ -77,9 +78,9 @@ private:
     std::string directory;
 public:
     std::vector<Mesh> meshes;
-    bool vertical_flip;
+    bool vertical_flip, use_alpha;
 
-    impl(const char* path, bool vertically_flip_textures) : vertical_flip(vertically_flip_textures) {
+    impl(const char* path, bool vertically_flip_textures, bool use_alpha) : vertical_flip(vertically_flip_textures), use_alpha(use_alpha) {
         loadModel(path);
     }
 
@@ -169,7 +170,7 @@ public:
             }
             if (!skip) {   // if texture hasn't been loaded already, load it
                 Texture texture;
-                texture.id = loadTexture(std::format("{}/{}", directory, str.C_Str()).c_str(), this->vertical_flip);
+                texture.id = loadTexture(std::format("{}/{}", directory, str.C_Str()).c_str(), this->vertical_flip, true);
                 texture.type = type_name;
                 texture.path = str.C_Str();
                 textures.push_back(texture);
@@ -180,7 +181,7 @@ public:
     }
 };
 
-Model::Model(const char* path, bool vertically_flip_textures) : pimpl(std::make_unique<impl>(path, vertically_flip_textures)) { }
+Model::Model(const char* path, bool vertically_flip_textures, bool use_alpha) : pimpl(std::make_unique<impl>(path, vertically_flip_textures, use_alpha)) { }
 
 void Model::draw(Shader& shader, int mesh_nr) {
     // TODO Add transforms to each mesh, as they currently all render at origin
@@ -193,7 +194,7 @@ void Model::draw(Shader& shader, int mesh_nr) {
     }
 }
 
-unsigned int loadTexture(const char* filename, bool vertical_flip) {
+unsigned int loadTexture(const char* filename, bool vertical_flip, bool use_alpha) {
     unsigned texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -208,8 +209,11 @@ unsigned int loadTexture(const char* filename, bool vertical_flip) {
     if (vertical_flip)
         stbi_set_flip_vertically_on_load(true);
 
-    unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3);
+    unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3+use_alpha);
     if (data) {
+        if (use_alpha)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }

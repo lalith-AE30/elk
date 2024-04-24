@@ -114,8 +114,9 @@ vec4 calcDirLight(DirLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_
 }
 
 void main() {
-	vec4 specular_s = texture(material.texture_specular1, tex_coord);
 	vec4 diffuse_s  =  texture(material.texture_diffuse1, tex_coord);
+	if (diffuse_s.a < 0.1) discard;
+	vec4 specular_s = texture(material.texture_specular1, tex_coord);
 	vec4 spot = calcSpotLight(spot_light, specular_s, diffuse_s, diffuse_s);
 	vec4 dir = calcDirLight(dir_light, specular_s, diffuse_s, diffuse_s);
 	frag_color = spot + dir;

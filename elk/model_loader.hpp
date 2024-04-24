@@ -10,7 +10,7 @@
 
 #include "shader.hpp"
 
-unsigned int loadTexture(const char*, bool = true);
+unsigned int loadTexture(const char*, bool = true, bool = false);
 
 struct Vertex {
     glm::vec3 pos;
@@ -44,7 +44,7 @@ class impl;
 
 class Model {
 public:
-    Model(const char* path, bool vertically_flip_textures = true);
+    Model(const char* path, bool vertically_flip_textures = true, bool use_alpha = false);
 
     ~Model();
 
