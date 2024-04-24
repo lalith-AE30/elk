@@ -1,0 +1,22 @@
+# Blender 4.1.1 MTL File: 'None'
+# www.blender.org
+
+newmtl blinn1
+Ns 445.859894
+Ka 1.000000 1.000000 1.000000
+Ks 0.245805 0.245805 0.245805
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd -o 0 -5.287 0 -s 3 6.287 1 blinn1_baseColor.jpeg
+
+newmtl blinn2
+Ns 353.848022
+Ka 1.000000 1.000000 1.000000
+Ks 0.224550 0.224550 0.224550
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd blinn4_baseColor.jpeg

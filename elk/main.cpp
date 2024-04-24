@@ -24,7 +24,7 @@
 #include "window_callbacks.hpp"
 
 // TODO Get Nuklear in here
-int pmain() {
+int main() {
 	glfwInit();
 	{
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -39,10 +39,11 @@ int pmain() {
 	// TODO Remove bindings control from main loop to window handler.
 	Bindings bindings = generate_bindings(window);
 
-	Shader lights_shader("shaders/phong_vertex.glsl", "shaders/phong_fragment.glsl");
+	Shader lights_shader("shaders/phong_vertex.glsl", "shaders/depth_fragment.glsl");
 	Shader light_source_shader("shaders/light_vertex.glsl", "shaders/light_fragment.glsl");
 
-	Model model_3d("models/skull/skull.obj", false);
+	Model model_3d("models/chess_board/chess_board.obj", true);
+	Model model_3d1("models/skull/skull.obj", false);
 	Model bulb("models/sphere/sphere.obj");
 
 	DirectionalLight dir_light = {
@@ -106,6 +107,7 @@ int pmain() {
 		float time = static_cast<float>(glfwGetTime());
 
 		glm::mat4 model(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -0.3f, 0.0f));
 		//model = glm::scale(model, glm::vec3(0.1f));
 		//model = glm::translate(model, glm::vec3(0.0f, -80.0f, 0.0f));
 		float aspect = (float)state.scr_width / (float)state.scr_height;
@@ -127,6 +129,10 @@ int pmain() {
 		dir_light.dir = glm::vec4(sin(time), -1.0f, cos(time), 0.0f);
 		updateMaterialShader(lights_shader, spot_light, point_lights, dir_light);
 		model_3d.draw(lights_shader, state.mesh);
+
+		model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+		lights_shader.setMat4("model", model);
+		model_3d1.draw(lights_shader, state.mesh);
 
 		light_source_shader.use();
 
