@@ -10,6 +10,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+bool missing_texture_loaded = false;
+unsigned int missing_texture;
+
 // TODO Add mesh generation from just vertex positions
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
     this->vertices = vertices;
@@ -38,6 +41,18 @@ void Mesh::draw(Shader& shader) {
         }
 
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    }
+    if (textures.size() == 0) {
+        if (!missing_texture_loaded) {
+            missing_texture = loadTexture("models/missing_texture.png");
+            missing_texture_loaded = true;
+        }
+        glActiveTexture(GL_TEXTURE0);
+
+        shader.setInt("material.texture_diffuse1", 0);
+        shader.setInt("material.texture_specular1", 0);
+
+        glBindTexture(GL_TEXTURE_2D, missing_texture);
     }
     glActiveTexture(GL_TEXTURE0);
 
@@ -160,10 +175,8 @@ public:
             aiString str;
             mat->GetTexture(type, i, &str);
             bool skip = false;
-            for (unsigned int j = 0; j < textures_loaded.size(); j++)
-            {
-                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
-                {
+            for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
                     textures.push_back(textures_loaded[j]);
                     skip = true;
                     break;
@@ -209,13 +222,15 @@ unsigned int loadTexture(const char* filename, bool vertical_flip, bool use_alph
     int width, height, nrChannels;
     if (vertical_flip)
         stbi_set_flip_vertically_on_load(true);
+    else 
+        stbi_set_flip_vertically_on_load(false);
 
-    unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3+use_alpha);
+    unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 3 + use_alpha);
     if (data) {
         if (use_alpha)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {

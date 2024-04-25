@@ -62,8 +62,8 @@ int main() {
 
 	Model bulb("models/sphere/sphere.obj", true);
 	Model grass("models/grass/grass.obj", false, true);
-	Model model_3d1("models/skull/skull.obj", false);
 	Model model_3d("models/chess_board/chess_board.obj", true);
+	Model model_3d1("models/skull/skull.obj", false);
 
 	int nr_grass = 10;
 	std::vector<glm::vec2> dist;
@@ -144,7 +144,7 @@ int main() {
 
 		{
 			ImGui::Begin("Dashboard");
-			ImGui::SetWindowFontScale(2.0f);
+			ImGui::SetWindowFontScale(1.0f);
 
 			ImGui::Text("Text Test");
 
