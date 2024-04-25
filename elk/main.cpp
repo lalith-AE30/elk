@@ -116,12 +116,12 @@ int main() {
 	glEnable(GL_CULL_FACE);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-	// TODO Add culling controls to GUI
-
 	glm::vec4 clear_color(0.0f);
 	float scale = 1.0f;
-	int active_shader_type = 0;
-	bool render_outline = false;
+	int active_shader_type = 0, culling = 2;
+	bool vsync = true,
+		render_outline = false,
+		render_grass = true;
 
 	while (!glfwWindowShouldClose(window)) {
 		float current_frame = static_cast<float>(glfwGetTime());
@@ -143,17 +143,20 @@ int main() {
 		ImGui::NewFrame();
 
 		{
-			static int counter = 0;
-
 			ImGui::Begin("Dashboard");
+			ImGui::SetWindowFontScale(2.0f);
 
 			ImGui::Text("Text Test");
 
+			glm::vec4 last_color = clear_color;
 			ImGui::ColorEdit3("clear color", (float*)&clear_color);
+			if (last_color!=clear_color)
+				glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
 			ImGui::SliderFloat("Scale", &scale, 0.1, 10.0);
 
-			ImGui::Checkbox("Render outline", &render_outline);
+			ImGui::Checkbox("Render outline", &render_outline); ImGui::SameLine();
+			ImGui::Checkbox("Render grass", &render_grass);
 
 			ImGui::RadioButton("Phong", &active_shader_type, 0); ImGui::SameLine();
 			ImGui::RadioButton("Depth", &active_shader_type, 1); ImGui::SameLine();
@@ -174,21 +177,52 @@ int main() {
 				break;
 			}
 
-			if (ImGui::Button("Reload Skull"))
-				Model model_3d1("models/skull/skull.obj");
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
+			int prev_cull = culling;
+
+			ImGui::RadioButton("No Culling", &culling, 0); ImGui::SameLine();
+			ImGui::RadioButton("Front face", &culling, 1); ImGui::SameLine();
+			ImGui::RadioButton("Back face", &culling, 2);
+
+			switch (culling) {
+			case 0:
+				if (prev_cull)
+					glDisable(GL_CULL_FACE);
+				break;
+			case 1:
+				if (prev_cull == 0)
+					glEnable(GL_CULL_FACE);
+				if (prev_cull != 1)
+					glCullFace(GL_FRONT);
+				break;
+			case 2:
+				if (prev_cull == 0)
+					glEnable(GL_CULL_FACE);
+				if (prev_cull != 2)
+					glCullFace(GL_BACK);
+				break;
+			default:
+				break;
+			}
+
+			ImGui::Checkbox("Enable VSync", &vsync);
+			glfwSwapInterval(vsync);
 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 			ImGui::End();
 		}
 
 		ImGui::Render();
-		glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		float aspect = (float)state.scr_width / (float)state.scr_height;
 		glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), aspect, 0.1f, 100.0f);
+		//proj = glm::orthoRH(
+		//	-glm::radians(camera.zoom) * aspect,
+		//	glm::radians(camera.zoom) * aspect,
+		//	-glm::radians(camera.zoom),
+		//	glm::radians(camera.zoom),
+		//	0.1f, 100.0f
+		//);
 		glm::mat4 view = camera.GetViewMatrix();
 
 		active_shader->use();
@@ -209,11 +243,10 @@ int main() {
 			model_3d.draw(*active_shader, state.mesh);
 		}
 
-		for (int i = 0; i < nr_grass; i++) {
+		for (int i = 0;render_grass && i < nr_grass; i++) {
 			glm::mat4 model(1.0f);
 			model = glm::translate(model, glm::vec3(dist[i].x, 0.7f, dist[i].y));
 			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::scale(model, glm::vec3(scale));
 			active_shader->setMat4("model", model);
 			grass.draw(*active_shader, state.mesh);
 		}
@@ -223,6 +256,7 @@ int main() {
 
 			glm::mat4 model(1.0f);
 			model = glm::translate(model, glm::vec3(0.0f, 0.7f, 0.0f));
+			model = glm::scale(model, glm::vec3(scale));
 
 			active_shader->setMat4("model", model);
 

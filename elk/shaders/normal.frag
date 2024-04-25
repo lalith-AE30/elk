@@ -4,5 +4,5 @@ out vec4 frag_color;
 in vec4 normal;
 
 void main() {
-    frag_color = normal;
+    frag_color = normalize(normal);
 }
