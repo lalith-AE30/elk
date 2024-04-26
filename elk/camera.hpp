@@ -55,37 +55,35 @@ public:
         updateCameraVectors();
     }
 
-    glm::mat4 GetViewMatrix() const {
+    glm::mat4 getViewMatrix() const {
         return glm::lookAt(pos, pos + front, up);
     }
 
-    void ProcessKeyboard(CameraMovement direction, float dt)
-    {
+    void processKeyboard(CameraMovement direction, float dt) {
         float velocity = movement_speed * dt;
         switch (direction) {
         case CameraMovement::FORWARD:
-            pos += front * velocity;
+            pos += alignToWorld(front) * velocity;
             break;
         case CameraMovement::BACKWARD:
-            pos -= front * velocity;
+            pos -= alignToWorld(front) * velocity;
             break;
         case CameraMovement::RIGHT:
-            pos += right * velocity;
+            pos += alignToWorld(right) * velocity;
             break;
         case CameraMovement::LEFT:
-            pos -= right * velocity;
+            pos -= alignToWorld(right) * velocity;
             break;
         case CameraMovement::UP:
-            pos += up * velocity;
+            pos += world_up * velocity;
             break;
         case CameraMovement::DOWN:
-            pos -= up * velocity;
+            pos -= world_up * velocity;
             break;
         }
     }
 
-    void ProcessMouseMovement(GLFWwindow* window, GLboolean constrainPitch = true)
-    {
+    void processMouseMovement(GLFWwindow* window, GLboolean constrainPitch = true) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         if (refocus) {
@@ -114,7 +112,7 @@ public:
         updateCameraVectors();
     }
 
-    void ProcessMouseScroll(float yoffset)
+    void processMouseScroll(float yoffset)
     {
         zoom -= (float)yoffset;
         if (zoom < 1.0f)
@@ -144,6 +142,10 @@ private:
         // re-calculate the Right and Up vector
         right = glm::normalize(glm::cross(front, world_up));
         up = glm::normalize(glm::cross(right, front));
+    }
+
+    glm::vec3 alignToWorld(glm::vec3 vec) const {
+        return glm::normalize(vec - glm::vec3(0.0f, glm::dot(vec, world_up), 0.0f));
     }
 };
 

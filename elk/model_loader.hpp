@@ -44,7 +44,7 @@ class modelImpl;
 
 class Model {
 public:
-    Model(const char* path, bool vertically_flip_textures = true, bool use_alpha = false);
+    Model(const char* path, bool vertically_flip_textures = true, bool use_alpha = false, bool use_normal_maps = false);
 
     ~Model();
 

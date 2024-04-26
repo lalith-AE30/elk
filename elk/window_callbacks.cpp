@@ -32,17 +32,17 @@ namespace controller {
         // TODO Add better controls for modified keys.
         if (window_state.capture_controller) {
             if (bindings->key_w.down())
-                window_state.camera->ProcessKeyboard(CameraMovement::FORWARD, dt);
+                window_state.camera->processKeyboard(CameraMovement::FORWARD, dt);
             if (bindings->key_s.down())
-                window_state.camera->ProcessKeyboard(CameraMovement::BACKWARD, dt);
+                window_state.camera->processKeyboard(CameraMovement::BACKWARD, dt);
             if (bindings->key_a.down())
-                window_state.camera->ProcessKeyboard(CameraMovement::LEFT, dt);
+                window_state.camera->processKeyboard(CameraMovement::LEFT, dt);
             if (bindings->key_d.down())
-                window_state.camera->ProcessKeyboard(CameraMovement::RIGHT, dt);
+                window_state.camera->processKeyboard(CameraMovement::RIGHT, dt);
             if (bindings->key_space.down())
-                window_state.camera->ProcessKeyboard(CameraMovement::UP, dt);
+                window_state.camera->processKeyboard(CameraMovement::UP, dt);
             if (bindings->key_lctrl.down())
-                window_state.camera->ProcessKeyboard(CameraMovement::DOWN, dt);
+                window_state.camera->processKeyboard(CameraMovement::DOWN, dt);
             if (bindings->key_up.down() && bindings->key_lalt.down())
                 window_state.distance += 5.0f;
             if (bindings->key_down.down() && bindings->key_lalt.down())
@@ -59,7 +59,7 @@ namespace controller {
                 }
                 window_state.depth_testing = !window_state.depth_testing;
             }
-            window_state.camera->ProcessMouseMovement(window);
+            window_state.camera->processMouseMovement(window);
         }
     }
 }
@@ -71,7 +71,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-    window_state.camera->ProcessMouseScroll(static_cast<float>(yoffset));
+    window_state.camera->processMouseScroll(static_cast<float>(yoffset));
 }
 
 GLFWwindow* bindWindow(unsigned int scr_width, unsigned int scr_height, Camera* camera, const std::string& title) {

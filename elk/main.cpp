@@ -51,7 +51,8 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	Shader lights_shader("shaders/phong.vert", "shaders/phong.frag");
+	//Shader lights_shader("shaders/phong.vert", "shaders/phong.frag");
+	Shader lights_shader("shaders/phong_normal.vert", "shaders/phong_normal.frag");
 	Shader depth_shader("shaders/phong.vert", "shaders/depth.frag");
 	Shader normal_shader("shaders/normal.vert", "shaders/normal.frag");
 	Shader outline_shader("shaders/phong.vert", "shaders/outline.frag");
@@ -62,8 +63,8 @@ int main() {
 
 	Model bulb("models/sphere/sphere.obj", true);
 	Model grass("models/grass/grass.obj", false, true);
-	Model model_3d("models/chess_board/chess_board.obj", true);
-	Model model_3d1("models/skull/skull.obj", false);
+	Model model_3d("models/chess_board/chess_board.obj", true, false, true);
+	Model model_3d1("models/skull/skull.obj", false, false, true);
 
 	int nr_grass = 10;
 	std::vector<glm::vec2> dist;
@@ -223,7 +224,7 @@ int main() {
 		//	glm::radians(camera.zoom),
 		//	0.1f, 100.0f
 		//);
-		glm::mat4 view = camera.GetViewMatrix();
+		glm::mat4 view = camera.getViewMatrix();
 
 		active_shader->use();
 
