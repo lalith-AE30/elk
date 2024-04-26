@@ -12,10 +12,11 @@
 struct WindowState {
     unsigned int scr_width = 800;
     unsigned int scr_height = 600;
-    bool capture_controller = true;
     float distance = 10.0f;
     int mesh = -1;
-    bool depth_testing = true;
+    bool capture_controller = true,
+        depth_testing = true,
+        framesize_changed = false;
     Camera* camera = NULL;
 };
 

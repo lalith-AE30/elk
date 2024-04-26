@@ -76,6 +76,7 @@ namespace controller {
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     window_state.scr_width = width;
     window_state.scr_height = height;
+    window_state.framesize_changed = true;
     glViewport(0, 0, width, height);
 }
 

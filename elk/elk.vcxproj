@@ -187,6 +187,8 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     <None Include="shaders\depth.frag" />
     <None Include="shaders\normal.frag" />
     <None Include="shaders\normal.vert" />
+    <None Include="shaders\screen.frag" />
+    <None Include="shaders\screen.vert" />
     <None Include="shaders\outline.frag" />
     <None Include="shaders\phong.frag" />
     <None Include="shaders\phong_dir.vert" />

@@ -22,6 +22,15 @@
     <Filter Include="Header Files\External Header Files">
       <UniqueIdentifier>{2a1a3c83-ccad-46db-b7e9-faf3b145c342}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Phong">
+      <UniqueIdentifier>{e129c578-a6b4-4680-ac6a-44e90637574a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Lights">
+      <UniqueIdentifier>{5d1750ad-4701-48e2-a496-2161266e4ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Viz">
+      <UniqueIdentifier>{29307ae3-9e5b-4263-b764-ec26dc78ab03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -55,10 +64,10 @@
       <Filter>Source Files\External Source FIles</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_glfw.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\External Source FIles</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_opengl3.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\External Source FIles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,37 +116,49 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="external\imgui\misc\debuggers\imgui.natstepfilter" />
-    <None Include="shaders\phong_spot.frag">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\depth.frag">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\light.frag">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\light.vert">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\normal.frag">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\normal.vert">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shaders\outline.frag">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="shaders\phong.frag">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Phong</Filter>
     </None>
     <None Include="shaders\phong.vert">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Phong</Filter>
     </None>
     <None Include="shaders\phong_dir.vert">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Phong</Filter>
+    </None>
+    <None Include="shaders\phong_normal.frag">
+      <Filter>Shader Files\Phong</Filter>
+    </None>
+    <None Include="shaders\phong_normal.vert">
+      <Filter>Shader Files\Phong</Filter>
     </None>
     <None Include="shaders\phong_point.frag">
+      <Filter>Shader Files\Phong</Filter>
+    </None>
+    <None Include="shaders\phong_spot.frag">
+      <Filter>Shader Files\Phong</Filter>
+    </None>
+    <None Include="shaders\light.vert">
+      <Filter>Shader Files\Lights</Filter>
+    </None>
+    <None Include="shaders\light.frag">
+      <Filter>Shader Files\Lights</Filter>
+    </None>
+    <None Include="shaders\depth.frag">
+      <Filter>Shader Files\Viz</Filter>
+    </None>
+    <None Include="shaders\normal.frag">
+      <Filter>Shader Files\Viz</Filter>
+    </None>
+    <None Include="shaders\normal.vert">
+      <Filter>Shader Files\Viz</Filter>
+    </None>
+    <None Include="shaders\outline.frag">
+      <Filter>Shader Files\Viz</Filter>
+    </None>
+    <None Include="shaders\screen.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\screen.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
