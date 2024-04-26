@@ -62,11 +62,11 @@ int main() {
     Shader normal_shader("shaders/normal.vert", "shaders/normal.frag");
     Shader outline_shader("shaders/phong.vert", "shaders/outline.frag");
     Shader light_source_shader("shaders/light.vert", "shaders/light.frag");
-    Shader screen_shader("shaders/screen.vert", "shaders/screen.frag");
+    Shader screen_shader("shaders/screen.vert", "shaders/screen_sharpen.frag");
     // ------------------------------------------------------------------------------------------
 
     // Initialize Models ------------------------------------------------------------------------
-    Model test_object("models/skull/skull.obj", false, false);
+    Model test_object("models/anime_girl/anime_girl.obj", false, false);
     Model bulb("models/sphere/sphere.obj", true);
     Model grass("models/grass/grass.obj", false, true);
     Model chess_board("models/chess_board/chess_board.obj", true, false);

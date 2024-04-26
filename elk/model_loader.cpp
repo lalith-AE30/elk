@@ -49,36 +49,36 @@ void Mesh::draw(Shader& shader) {
     }
 
     {
-    if (specular_nr == 0) {
-        if (!missing_texture_loaded) {
-            missing_texture = loadTexture("models/missing_texture.png");
-            missing_texture_loaded = true;
+        if (specular_nr == 0) {
+            if (!missing_texture_loaded) {
+                missing_texture = loadTexture("models/missing_texture.png");
+                missing_texture_loaded = true;
+            }
+            glActiveTexture(GL_TEXTURE10);
+            shader.setInt("material.texture_specular1", 0);
+            glBindTexture(GL_TEXTURE_2D, missing_texture);
         }
-        glActiveTexture(GL_TEXTURE10);
-        shader.setInt("material.texture_specular1", 0);
-        glBindTexture(GL_TEXTURE_2D, missing_texture);
-    }
-    if (normal_nr == 0) {
-        if (!missing_texture_loaded) {
-            missing_texture = loadTexture("models/missing_texture.png");
-            missing_texture_loaded = true;
+        if (normal_nr == 0) {
+            if (!missing_texture_loaded) {
+                missing_texture = loadTexture("models/missing_texture.png");
+                missing_texture_loaded = true;
+            }
+            glActiveTexture(GL_TEXTURE10);
+            shader.setInt("material.texture_normal1", 0);
+            glBindTexture(GL_TEXTURE_2D, missing_texture);
         }
-        glActiveTexture(GL_TEXTURE10);
-        shader.setInt("material.texture_normal1", 0);
-        glBindTexture(GL_TEXTURE_2D, missing_texture);
-    }
-    if (textures.size() == 0) {
-        if (!missing_texture_loaded) {
-            missing_texture = loadTexture("models/missing_texture.png");
-            missing_texture_loaded = true;
-        }
-        glActiveTexture(GL_TEXTURE0);
+        if (textures.size() == 0) {
+            if (!missing_texture_loaded) {
+                missing_texture = loadTexture("models/missing_texture.png");
+                missing_texture_loaded = true;
+            }
+            glActiveTexture(GL_TEXTURE0);
 
-        shader.setInt("material.texture_diffuse1", 0);
-        shader.setInt("material.texture_specular1", 0);
+            shader.setInt("material.texture_diffuse1", 0);
+            shader.setInt("material.texture_specular1", 0);
 
-        glBindTexture(GL_TEXTURE_2D, missing_texture);
-    }
+            glBindTexture(GL_TEXTURE_2D, missing_texture);
+        }
     }
     glActiveTexture(GL_TEXTURE0);
 
@@ -127,6 +127,12 @@ public:
         use_alpha(use_alpha),
         use_normal_maps(use_normal_maps) {
         loadModel(path);
+    }
+
+    ~modelImpl() {
+        for (auto& texture : textures_loaded) {
+            glDeleteTextures(1, &texture.id);
+        }
     }
 
     void loadModel(std::string path) {

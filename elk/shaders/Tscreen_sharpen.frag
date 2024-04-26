@@ -5,7 +5,7 @@ in vec2 tex_coord;
 
 uniform sampler2D screen_texture;
 
-const float offset = 1.0 / 300.0;  
+const float offset = STRIDE;
 
 void main()
 {
@@ -21,11 +21,7 @@ void main()
         vec2( offset, -offset)  // bottom-right    
     );
 
-    float kernel[9] = float[](
-        -1, -1, -1,
-        -1,  9, -1,
-        -1, -1, -1
-    );
+    float kernel[9] = KERNEL;
     
     vec3 sample_tex[9];
     for(int i = 0; i < 9; i++)
@@ -37,4 +33,4 @@ void main()
         col += sample_tex[i] * kernel[i];
     
     frag_color = vec4(col, 1.0);
-}  
+}
