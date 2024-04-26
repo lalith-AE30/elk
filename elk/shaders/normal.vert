@@ -10,6 +10,6 @@ uniform mat4 proj;
 
 void main() {
 	gl_Position = proj * view * model * vec4(aPos, 1.0);
-	
+
 	normal = (model * vec4(aNormal, 0.0));
 }

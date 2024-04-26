@@ -26,289 +26,289 @@
 #include "window_callbacks.hpp"
 
 int main() {
-	glfwInit();
-	{
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	}
+    glfwInit();
+    {
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    }
 
-	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    GLFWwindow* window = bindWindow(800, 600, &camera, "Model Viwer");
+    // TODO Remove bindings control from main loop to window handler.
+    Bindings bindings = generate_bindings(window);
 
-	GLFWwindow* window = bindWindow(800, 600, &camera, "Model Viwer");
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    {
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-	// TODO Remove bindings control from main loop to window handler.
-	Bindings bindings = generate_bindings(window);
+        ImGui::StyleColorsDark();
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init("#version 330");
+    }
 
-	ImGui::StyleColorsDark();
+    Shader lights_shader("shaders/phong.vert", "shaders/phong.frag");
+    //Shader lights_shader("shaders/phong_normal.vert", "shaders/phong_normal.frag");
+    Shader depth_shader("shaders/phong.vert", "shaders/depth.frag");
+    Shader normal_shader("shaders/normal.vert", "shaders/normal.frag");
+    Shader outline_shader("shaders/phong.vert", "shaders/outline.frag");
+    Shader light_source_shader("shaders/light.vert", "shaders/light.frag");
 
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+    Model test_object("models/backpack/backpack.obj", true, false);
+    Model bulb("models/sphere/sphere.obj", true);
+    Model grass("models/grass/grass.obj", false, true);
+    Model chess_board("models/chess_board/chess_board.obj", true, false);
 
-	//Shader lights_shader("shaders/phong.vert", "shaders/phong.frag");
-	Shader lights_shader("shaders/phong_normal.vert", "shaders/phong_normal.frag");
-	Shader depth_shader("shaders/phong.vert", "shaders/depth.frag");
-	Shader normal_shader("shaders/normal.vert", "shaders/normal.frag");
-	Shader outline_shader("shaders/phong.vert", "shaders/outline.frag");
-	Shader light_source_shader("shaders/light.vert", "shaders/light.frag");
+    DirectionalLight dir_light = {
+        .dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
+        .ambient = glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
+        .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+        .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
+    PointLight point_light = {
+        .pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
+        .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+        .diffuse = glm::vec4(0.7f, 0.2f, 0.2f, 1.0f),
+        .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
+    SpotLight spot_light = {
+     .pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+     .dir = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f),
+     .soft_cutoff = glm::cos(glm::radians(10.0f)),
+     .cutoff = glm::cos(glm::radians(11.0f)),
+     .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
+     .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+     .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
+    };
 
-	Shader* active_shader = &lights_shader;
-	active_shader = &depth_shader;
+    glm::vec3 point_light_positions[] = {
+        glm::vec3(0.7f,  0.2f,  2.0f),
+        glm::vec3(2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3(0.0f,  0.0f, -3.0f)
+    };
+    std::vector<PointLight> point_lights;
 
-	Model bulb("models/sphere/sphere.obj", true);
-	Model grass("models/grass/grass.obj", false, true);
-	Model model_3d("models/chess_board/chess_board.obj", true, false, true);
-	Model model_3d1("models/skull/skull.obj", false, false, true);
+    std::vector<glm::vec2> dist;
+    
+    Shader* active_shader = &lights_shader;
+    active_shader = &depth_shader;
+    
+    int nr_grass = 10;
+    {
+        dist.resize(nr_grass);
+        for (int i = 0; i < nr_grass; i++) {
+            dist[i] = glm::diskRand(5.0f);
+        }
+    }
 
-	int nr_grass = 10;
-	std::vector<glm::vec2> dist;
-	dist.resize(nr_grass);
-	for (int i = 0; i < nr_grass; i++) {
-		dist[i] = glm::diskRand(5.0f);
-	}
+    int nr_lights = 4;
+    {
+        point_lights.resize(nr_lights);
+        for (int i = 0; i < nr_lights; i++) {
+            point_lights[i] = point_light;
+            point_lights[i].pos = glm::vec4(point_light_positions[i], 1.0f);
+        }
+    }
 
-	DirectionalLight dir_light = {
-		.dir = glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f),
-		.ambient = glm::vec4(0.02f, 0.01f, 0.005f, 1.0f),
-		.diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
-		.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-	};
-	PointLight point_light = {
-		.pos = glm::vec4(1.2f, 1.0f, 2.0f, 1.0f),
-		.ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-		.diffuse = glm::vec4(0.7f, 0.2f, 0.2f, 1.0f),
-		.specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-	};
-	SpotLight spot_light = {
-	 .pos = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-	 .dir = glm::vec4(0.0f, 0.0f, -1.0f, 0.0f),
-	 .soft_cutoff = glm::cos(glm::radians(10.0f)),
-	 .cutoff = glm::cos(glm::radians(11.0f)),
-	 .ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-	 .diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
-	 .specular = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
-	};
 
-	glm::vec3 point_light_positions[] = {
-		glm::vec3(0.7f,  0.2f,  2.0f),
-		glm::vec3(2.3f, -3.3f, -4.0f),
-		glm::vec3(-4.0f,  2.0f, -12.0f),
-		glm::vec3(0.0f,  0.0f, -3.0f)
-	};
 
-	int nr_lights = 4;
-	std::vector<PointLight> point_lights;
-	point_lights.resize(nr_lights);
-	for (int i = 0; i < nr_lights; i++) {
-		point_lights[i] = point_light;
-		point_lights[i].pos = glm::vec4(point_light_positions[i], 1.0f);
-	}
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glEnable(GL_CULL_FACE);
 
-	float dt = 0.0f;
-	float last_frame = 0.0f;
+    glm::vec4 clear_color(0.0f);
+    float scale = 1.0f, dt = 0.0f, last_frame = 0.0f;
+    int active_shader_type = 0, culling = 2;
+    bool vsync = true,
+        render_outline = false,
+        render_grass = true;
+    while (!glfwWindowShouldClose(window)) {
+        float current_frame = static_cast<float>(glfwGetTime());
+        dt = current_frame - last_frame;
+        last_frame = current_frame;
 
-	glEnable(GL_STENCIL_TEST);
-	glEnable(GL_CULL_FACE);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        WindowState state = controller::getState();
+        {
+            if (!io.WantCaptureMouse) {
+                controller::processInput(window, &bindings, dt);
+                for (auto& point_light : point_lights)
+                    setVisibility(point_light, state.distance);
+                setVisibility(spot_light, state.distance);
+            }
+        }
 
-	glm::vec4 clear_color(0.0f);
-	float scale = 1.0f;
-	int active_shader_type = 0, culling = 2;
-	bool vsync = true,
-		render_outline = false,
-		render_grass = true;
+        {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-	while (!glfwWindowShouldClose(window)) {
-		float current_frame = static_cast<float>(glfwGetTime());
-		dt = current_frame - last_frame;
-		last_frame = current_frame;
+            ImGui::Begin("Dashboard");
+            ImGui::SetWindowFontScale(1.0f);
 
-		WindowState state = controller::getState();
-		{
-			if (!io.WantCaptureMouse) {
-				controller::processInput(window, &bindings, dt);
-				for (auto& point_light : point_lights)
-					setVisibility(point_light, state.distance);
-				setVisibility(spot_light, state.distance);
-			}
-		}
+            ImGui::Text("Text Test");
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+            glm::vec4 last_color = clear_color;
+            ImGui::ColorEdit3("clear color", (float*)&clear_color);
+            if (last_color != clear_color)
+                glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
-		{
-			ImGui::Begin("Dashboard");
-			ImGui::SetWindowFontScale(1.0f);
+            ImGui::SliderFloat("Scale", &scale, 0.1, 10.0);
 
-			ImGui::Text("Text Test");
+            ImGui::Checkbox("Render outline", &render_outline); ImGui::SameLine();
+            ImGui::Checkbox("Render grass", &render_grass);
 
-			glm::vec4 last_color = clear_color;
-			ImGui::ColorEdit3("clear color", (float*)&clear_color);
-			if (last_color!=clear_color)
-				glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
+            ImGui::RadioButton("Phong", &active_shader_type, 0); ImGui::SameLine();
+            ImGui::RadioButton("Depth", &active_shader_type, 1); ImGui::SameLine();
+            ImGui::RadioButton("Normal", &active_shader_type, 2);
 
-			ImGui::SliderFloat("Scale", &scale, 0.1, 10.0);
+            switch (active_shader_type)
+            {
+            case 0:
+                active_shader = &lights_shader;
+                break;
+            case 1:
+                active_shader = &depth_shader;
+                break;
+            case 2:
+                active_shader = &normal_shader;
+                break;
+            default:
+                break;
+            }
 
-			ImGui::Checkbox("Render outline", &render_outline); ImGui::SameLine();
-			ImGui::Checkbox("Render grass", &render_grass);
+            int prev_cull = culling;
 
-			ImGui::RadioButton("Phong", &active_shader_type, 0); ImGui::SameLine();
-			ImGui::RadioButton("Depth", &active_shader_type, 1); ImGui::SameLine();
-			ImGui::RadioButton("Normal", &active_shader_type, 2);
+            ImGui::RadioButton("No Culling", &culling, 0); ImGui::SameLine();
+            ImGui::RadioButton("Front face", &culling, 1); ImGui::SameLine();
+            ImGui::RadioButton("Back face", &culling, 2);
 
-			switch (active_shader_type)
-			{
-			case 0:
-				active_shader = &lights_shader;
-				break;
-			case 1:
-				active_shader = &depth_shader;
-				break;
-			case 2:
-				active_shader = &normal_shader;
-				break;
-			default:
-				break;
-			}
+            switch (culling) {
+            case 0:
+                if (prev_cull)
+                    glDisable(GL_CULL_FACE);
+                break;
+            case 1:
+                if (prev_cull == 0)
+                    glEnable(GL_CULL_FACE);
+                if (prev_cull != 1)
+                    glCullFace(GL_FRONT);
+                break;
+            case 2:
+                if (prev_cull == 0)
+                    glEnable(GL_CULL_FACE);
+                if (prev_cull != 2)
+                    glCullFace(GL_BACK);
+                break;
+            default:
+                break;
+            }
 
-			int prev_cull = culling;
+            ImGui::Checkbox("Enable VSync", &vsync);
+            glfwSwapInterval(vsync);
 
-			ImGui::RadioButton("No Culling", &culling, 0); ImGui::SameLine();
-			ImGui::RadioButton("Front face", &culling, 1); ImGui::SameLine();
-			ImGui::RadioButton("Back face", &culling, 2);
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            ImGui::End();
+        }
 
-			switch (culling) {
-			case 0:
-				if (prev_cull)
-					glDisable(GL_CULL_FACE);
-				break;
-			case 1:
-				if (prev_cull == 0)
-					glEnable(GL_CULL_FACE);
-				if (prev_cull != 1)
-					glCullFace(GL_FRONT);
-				break;
-			case 2:
-				if (prev_cull == 0)
-					glEnable(GL_CULL_FACE);
-				if (prev_cull != 2)
-					glCullFace(GL_BACK);
-				break;
-			default:
-				break;
-			}
+        ImGui::Render();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-			ImGui::Checkbox("Enable VSync", &vsync);
-			glfwSwapInterval(vsync);
+        float aspect = (float)state.scr_width / (float)state.scr_height;
+        glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), aspect, 0.1f, 100.0f);
+        glm::mat4 view = camera.getViewMatrix();
 
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-			ImGui::End();
-		}
+        active_shader->use();
 
-		ImGui::Render();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        active_shader->setMat4("proj", proj);
+        active_shader->setMat4("view", view);
 
-		float aspect = (float)state.scr_width / (float)state.scr_height;
-		glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), aspect, 0.1f, 100.0f);
-		//proj = glm::orthoRH(
-		//	-glm::radians(camera.zoom) * aspect,
-		//	glm::radians(camera.zoom) * aspect,
-		//	-glm::radians(camera.zoom),
-		//	glm::radians(camera.zoom),
-		//	0.1f, 100.0f
-		//);
-		glm::mat4 view = camera.getViewMatrix();
+        dir_light.dir = glm::vec4(sin(current_frame), -1.0f, cos(current_frame), 0.0f);
+        updateMaterialShader(*active_shader, spot_light, point_lights, dir_light);
 
-		active_shader->use();
+        // Chessboard
+        {
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, -0.3f, 0.0f));
 
-		active_shader->setMat4("proj", proj);
-		active_shader->setMat4("view", view);
+            glStencilMask(0x00);
+            active_shader->setMat4("model", model);
 
-		dir_light.dir = glm::vec4(sin(current_frame), -1.0f, cos(current_frame), 0.0f);
-		updateMaterialShader(*active_shader, spot_light, point_lights, dir_light);
+            chess_board.draw(*active_shader, state.mesh);
+        }
 
-		{
-			glm::mat4 model(1.0f);
-			model = glm::translate(model, glm::vec3(0.0f, -0.3f, 0.0f));
+        // Billboard Grass
+        for (int i = 0; render_grass && i < nr_grass; i++) {
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, glm::vec3(dist[i].x, 0.7f, dist[i].y));
+            model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            active_shader->setMat4("model", model);
+            grass.draw(*active_shader, state.mesh);
+        }
 
-			glStencilMask(0x00);
-			active_shader->setMat4("model", model);
+        // Test Object
+        {
+            glStencilMask(0xFF);
 
-			model_3d.draw(*active_shader, state.mesh);
-		}
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, 0.7f, 0.0f));
+            model = glm::scale(model, glm::vec3(scale));
 
-		for (int i = 0;render_grass && i < nr_grass; i++) {
-			glm::mat4 model(1.0f);
-			model = glm::translate(model, glm::vec3(dist[i].x, 0.7f, dist[i].y));
-			model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			active_shader->setMat4("model", model);
-			grass.draw(*active_shader, state.mesh);
-		}
+            active_shader->setMat4("model", model);
 
-		{
-			glStencilMask(0xFF);
+            test_object.draw(*active_shader, state.mesh);
 
-			glm::mat4 model(1.0f);
-			model = glm::translate(model, glm::vec3(0.0f, 0.7f, 0.0f));
-			model = glm::scale(model, glm::vec3(scale));
+            if (render_outline) {
+                glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+                glDisable(GL_DEPTH_TEST);
+                glStencilMask(0x00);
 
-			active_shader->setMat4("model", model);
+                model = glm::scale(model, glm::vec3(1.05f, 1.05f, 1.05f));
 
-			model_3d1.draw(*active_shader, state.mesh);
+                outline_shader.use();
 
-			if (render_outline) {
-				glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-				glDisable(GL_DEPTH_TEST);
-				glStencilMask(0x00);
+                outline_shader.setMat4("proj", proj);
+                outline_shader.setMat4("view", view);
+                outline_shader.setMat4("model", model);
 
-				model = glm::scale(model, glm::vec3(1.05f, 1.05f, 1.05f));
+                test_object.draw(outline_shader, state.mesh);
 
-				outline_shader.use();
+                glEnable(GL_DEPTH_TEST);
+                glStencilMask(0xFF);
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            }
+        }
 
-				outline_shader.setMat4("proj", proj);
-				outline_shader.setMat4("view", view);
-				outline_shader.setMat4("model", model);
+        // Lights
+        {
+            light_source_shader.use();
 
-				model_3d1.draw(outline_shader, state.mesh);
+            light_source_shader.setMat4("proj", proj);
+            light_source_shader.setMat4("view", view);
 
-				glEnable(GL_DEPTH_TEST);
-				glStencilMask(0xFF);
-				glStencilFunc(GL_ALWAYS, 1, 0xFF);
-			}
-		}
+            light_source_shader.setVec4("light_color", point_light.diffuse * 1e-1f * state.distance); // TODO Change heuristic constant
 
-		{
-			light_source_shader.use();
+            for (auto& pos : point_light_positions) {
+                glm::mat4 model(1.0f);
+                model = glm::translate(model, pos);
+                light_source_shader.setMat4("model", model);
+                bulb.draw(light_source_shader);
+            }
+        }
 
-			light_source_shader.setMat4("proj", proj);
-			light_source_shader.setMat4("view", view);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
-			light_source_shader.setVec4("light_color", point_light.diffuse * 1e-1f * state.distance); // TODO Change heuristic constant
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
-			for (auto& pos : point_light_positions) {
-				glm::mat4 model(1.0f);
-				model = glm::translate(model, pos);
-				light_source_shader.setMat4("model", model);
-				bulb.draw(light_source_shader);
-			}
-		}
-
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwTerminate();
-	return 0;
+    glfwTerminate();
+    return 0;
 }

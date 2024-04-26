@@ -116,10 +116,11 @@ void main() {
 	vec4 diffuse_s  =  texture(material.texture_diffuse1, tex_coord);
 	if (diffuse_s.a < 0.1) discard;
 	vec4 specular_s = texture(material.texture_specular1, tex_coord);
-	vec4 normal_s =  normalize(transpose(inverse(model * view)) * texture(material.texture_normal1, tex_coord));
+	// TODO Account for non-uniform scaling in future
+	vec4 normal_s =  normalize(texture(material.texture_normal1, tex_coord));
 	vec4 spot = calcSpotLight(spot_light, specular_s, diffuse_s, diffuse_s, normal_s);
 	vec4 dir = calcDirLight(dir_light, specular_s, diffuse_s, diffuse_s, normal_s);
-	frag_color = spot + dir;
+	frag_color = spot;
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		frag_color += calcPointLight(point_lights[i], specular_s, diffuse_s, diffuse_s, normal_s);
 	}

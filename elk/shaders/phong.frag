@@ -54,6 +54,22 @@ uniform Material material;
 
 vec4 norm = normalize(normal);
 
+vec4 calcPointLight(PointLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s);
+vec4 calcSpotLight(SpotLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s);
+vec4 calcDirLight(DirLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s);
+
+void main() {
+	vec4 diffuse_s  =  texture(material.texture_diffuse1, tex_coord);
+	if (diffuse_s.a < 0.1) discard;
+	vec4 specular_s = texture(material.texture_specular1, tex_coord);
+	vec4 spot = calcSpotLight(spot_light, specular_s, diffuse_s, diffuse_s);
+	vec4 dir = calcDirLight(dir_light, specular_s, diffuse_s, diffuse_s);
+	frag_color = spot + dir;
+	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
+		frag_color += calcPointLight(point_lights[i], specular_s, diffuse_s, diffuse_s);
+	}
+}
+
 vec4 calcPointLight(PointLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s) {
 	vec4 ray = (view * light.pos) - pos;
 	vec4 light_dir = normalize(ray);
@@ -97,7 +113,7 @@ vec4 calcSpotLight(SpotLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambien
 	float I = clamp((val-light.cutoff)/(light.soft_cutoff-light.cutoff), 0.0, 1.0);
 
 	return (ambient + diffuse + specular) * attenuation * I;
-};
+}
 
 vec4 calcDirLight(DirLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_s) {
 	vec4 light_dir = -normalize(view * light.dir);
@@ -111,16 +127,4 @@ vec4 calcDirLight(DirLight light, vec4 specular_s, vec4 diffuse_s, vec4 ambient_
 	vec4 specular = light.specular * (specular_s * spec);
 
 	return ambient + diffuse + specular;
-}
-
-void main() {
-	vec4 diffuse_s  =  texture(material.texture_diffuse1, tex_coord);
-	if (diffuse_s.a < 0.1) discard;
-	vec4 specular_s = texture(material.texture_specular1, tex_coord);
-	vec4 spot = calcSpotLight(spot_light, specular_s, diffuse_s, diffuse_s);
-	vec4 dir = calcDirLight(dir_light, specular_s, diffuse_s, diffuse_s);
-	frag_color = spot + dir;
-	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-		frag_color += calcPointLight(point_lights[i], specular_s, diffuse_s, diffuse_s);
-	}
 }

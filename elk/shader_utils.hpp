@@ -4,6 +4,7 @@
 // TODO Remove dependent function so it can be made C compatible
 #include "shader.hpp"
 
+#include <format>
 #include <vector>
 
 struct Material {
@@ -48,14 +49,14 @@ inline glm::vec3 getVisibility(float distance) {
     return glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));;
 }
 
-void setVisibility(PointLight& light, float distance) {
+inline void setVisibility(PointLight& light, float distance) {
     light.visibility = getVisibility(distance);
 }
-void setVisibility(SpotLight& light, float distance) {
+inline void setVisibility(SpotLight& light, float distance) {
     light.visibility = getVisibility(distance);
 }
 
-void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, float time, bool disable_emission = false) {
+inline void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, float time, bool disable_emission = false) {
     shader.setVec4("spot_light.pos", light.pos);
     shader.setVec4("spot_light.dir", light.dir);
     shader.setFloat("spot_light.soft_cutoff", light.soft_cutoff);
@@ -70,7 +71,8 @@ void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, flo
 
     shader.setFloat("material.shininess", shininess);
 }
-void updateMaterialShader(
+
+inline void updateMaterialShader(
     Shader& shader,
     SpotLight& spot_light,
     std::vector<PointLight>& point_lights,
@@ -106,4 +108,5 @@ void updateMaterialShader(
 
     shader.setFloat("material.shininess", shininess);
 }
+
 #endif
