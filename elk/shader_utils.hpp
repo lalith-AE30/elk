@@ -14,40 +14,120 @@ struct Material {
     float shininess;
 };
 
-struct DirectionalLight {
+inline glm::vec3 getVisibility(float distance) {
+    return glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));;
+}
+
+// TODO Improve ABC and loc setting calls
+class Light {
+public:
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
+
+    Light(
+        glm::vec4 ambient,
+        glm::vec4 diffuse,
+        glm::vec4 specular
+    ) : ambient(ambient),
+        diffuse(diffuse),
+        specular(specular) {}
+
+    virtual void update(Shader& shader) const = 0;
+    virtual ~Light() {}
+};
+
+class DirectionalLight : public Light {
+public:
     glm::vec4 dir;
 
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
+    DirectionalLight(
+        glm::vec4 dir,
+        glm::vec4 ambient,
+        glm::vec4 diffuse,
+        glm::vec4 specular
+    ) : dir(dir),
+        Light(ambient, diffuse, specular) {}
+
+    void update(Shader& shader) const {
+        shader.setVec4("dir_light.dir", this->dir);
+        shader.setVec4("dir_light.ambient", this->ambient);
+        shader.setVec4("dir_light.diffuse", this->diffuse);
+        shader.setVec4("dir_light.specular", this->specular);
+    }
 };
 
-struct PointLight {
+class PointLight : public Light {
+public:
     glm::vec4 pos;
-
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
-
     glm::vec3 visibility;
+    unsigned int nr;
+
+    PointLight() :
+        pos(glm::vec4()), nr(0),
+        visibility(getVisibility(50)),
+        Light(glm::vec4(), glm::vec4(), glm::vec4()) {}
+
+    PointLight(
+        glm::vec4 pos,
+        glm::vec4 ambient,
+        glm::vec4 diffuse,
+        glm::vec4 specular,
+        unsigned int nr = 0
+    ) : pos(pos), nr(nr),
+        visibility(getVisibility(50)),
+        Light(ambient, diffuse, specular) {}
+
+
+    void update(Shader& shader) const {
+        shader.setVec4(std::format("point_lights[{}].pos", nr), this->pos);
+        shader.setVec4(std::format("point_lights[{}].ambient", nr), this->ambient);
+        shader.setVec4(std::format("point_lights[{}].diffuse", nr), this->diffuse);
+        shader.setVec4(std::format("point_lights[{}].specular", nr), this->specular);
+        shader.setVec3(std::format("point_lights[{}].visibility", nr), this->visibility);
+    }
 };
 
-struct SpotLight {
+class SpotLight : public Light {
+public:
     glm::vec4 pos;
     glm::vec4 dir;
     float soft_cutoff;
     float cutoff;
 
-    glm::vec4 ambient;
-    glm::vec4 diffuse;
-    glm::vec4 specular;
-
     glm::vec3 visibility;
-};
 
-inline glm::vec3 getVisibility(float distance) {
-    return glm::vec3(1.0f, 4.5f / distance, 75.0f / (distance * distance));;
-}
+    SpotLight(
+        glm::vec4 pos,
+        glm::vec4 dir,
+        glm::vec4 ambient,
+        glm::vec4 diffuse,
+        glm::vec4 specular,
+        float soft_cutoff,
+        float cutoff = -1
+    ) : pos(pos),
+        dir(dir),
+        visibility(getVisibility(50)),
+        soft_cutoff(soft_cutoff),
+        Light(ambient, diffuse, specular)
+    {
+        if (cutoff == -1)
+            this->cutoff = soft_cutoff + 0.01;
+        else
+            this->cutoff = cutoff;
+    }
+
+    void update(Shader& shader) const {
+        shader.setVec4("spot_light.pos", this->pos);
+        shader.setVec4("spot_light.dir", this->dir);
+        shader.setVec4("spot_light.ambient", this->ambient);
+        shader.setVec4("spot_light.diffuse", this->diffuse);
+        shader.setVec4("spot_light.specular", this->specular);
+        shader.setVec3("spot_light.visibility", this->visibility);
+        shader.setFloat("spot_light.soft_cutoff", this->soft_cutoff);
+        shader.setFloat("spot_light.cutoff", this->cutoff);
+    }
+};
 
 inline void setVisibility(PointLight& light, float distance) {
     light.visibility = getVisibility(distance);
@@ -56,56 +136,17 @@ inline void setVisibility(SpotLight& light, float distance) {
     light.visibility = getVisibility(distance);
 }
 
-inline void updateMaterialShader(Shader& shader, SpotLight& light, float shininess, float time, bool disable_emission = false) {
-    shader.setVec4("spot_light.pos", light.pos);
-    shader.setVec4("spot_light.dir", light.dir);
-    shader.setFloat("spot_light.soft_cutoff", light.soft_cutoff);
-    shader.setFloat("spot_light.cutoff", light.cutoff);
-    shader.setVec4("spot_light.ambient", light.ambient);
-    shader.setVec4("spot_light.diffuse", light.diffuse);
-    shader.setVec4("spot_light.specular", light.specular);
-
-    shader.setVec3("spot_light.visibility", light.visibility);
-
-    shader.setFloat("time", time);
-
-    shader.setFloat("material.shininess", shininess);
-}
-
 inline void updateMaterialShader(
     Shader& shader,
-    SpotLight& spot_light,
-    std::vector<PointLight>& point_lights,
-    DirectionalLight& dir_light,
+    std::vector<Light*> lights,
     float shininess = 32.0f,
     float time = 0.0f,
     bool disable_emission = false
 ) {
-    shader.setVec4("spot_light.pos", spot_light.pos);
-    shader.setVec4("spot_light.dir", spot_light.dir);
-    shader.setVec4("spot_light.ambient", spot_light.ambient);
-    shader.setVec4("spot_light.diffuse", spot_light.diffuse);
-    shader.setVec4("spot_light.specular", spot_light.specular);
-    shader.setVec3("spot_light.visibility", spot_light.visibility);
-    shader.setFloat("spot_light.soft_cutoff", spot_light.soft_cutoff);
-    shader.setFloat("spot_light.cutoff", spot_light.cutoff);
-
-    for (int i = 0; i < 4; i++)
-    {
-        shader.setVec4(std::format("point_lights[{}].pos", i), point_lights[i].pos);
-        shader.setVec4(std::format("point_lights[{}].ambient", i), point_lights[i].ambient);
-        shader.setVec4(std::format("point_lights[{}].diffuse", i), point_lights[i].diffuse);
-        shader.setVec4(std::format("point_lights[{}].specular", i), point_lights[i].specular);
-        shader.setVec3(std::format("point_lights[{}].visibility", i), point_lights[i].visibility);
-    }
-
-    shader.setVec4("dir_light.dir", dir_light.dir);
-    shader.setVec4("dir_light.ambient", dir_light.ambient);
-    shader.setVec4("dir_light.diffuse", dir_light.diffuse);
-    shader.setVec4("dir_light.specular", dir_light.specular);
+    for (auto& light : lights)
+        light->update(shader);
 
     shader.setFloat("time", time);
-
     shader.setFloat("material.shininess", shininess);
 }
 

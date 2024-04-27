@@ -100,11 +100,11 @@ GLFWwindow* bindWindow(unsigned int scr_width, unsigned int scr_height, Camera* 
         glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
         glfwSetScrollCallback(window, scrollCallback);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
             std::cout << "Failed to initialize GLAD" << std::endl;
             return NULL;
         }
+        glViewport(0, 0, window_state.scr_width, window_state.scr_height);
         glEnable(GL_DEPTH_TEST);
     }
 
@@ -134,30 +134,30 @@ private:
 public:
     const unsigned int scr_width, scr_height;
     //Scene scene;
-    Bindings bindings;
+    Bindings* bindings;
 
     // TODO make camera to window optional
     Window(unsigned int scr_width, unsigned int scr_height, Camera camera, const std::string& title) :
         scr_width(scr_width),
-        scr_height(scr_height),
-        bindings(generate_empty_binding())
+        scr_height(scr_height)
     {
         window = glfwCreateWindow(scr_width, scr_height, title.c_str(), NULL, NULL);
-        {
-            if (window == NULL) {
-                throw std::system_error(-1, std::generic_category(), "Failed to create GLFW window");
-                glfwTerminate();
-                return;
-            }
-            glfwMakeContextCurrent(window);
-            glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-            glfwSetScrollCallback(window, scrollCallback);
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-                throw std::system_error(-2, std::generic_category(), "Failed to initialize GLAD");
-            glEnable(GL_DEPTH_TEST);
-            window_state.depth_testing = true;
+        if (window == NULL) {
+            throw std::system_error(-1, std::generic_category(), "Failed to create GLFW window");
+            glfwTerminate();
+            return;
         }
-        // TODO !Important make user_input.h classes available here
+        glfwMakeContextCurrent(window);
+        glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+        glfwSetScrollCallback(window, scrollCallback);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+            throw std::system_error(-2, std::generic_category(), "Failed to initialize GLAD");
+        glViewport(0, 0, window_state.scr_width, window_state.scr_height);
+        glEnable(GL_DEPTH_TEST);
+        window_state.depth_testing = true;
+        window_state.camera = &camera;
+        Bindings binds = generate_bindings(window);
+        bindings = &binds;
     }
 };
