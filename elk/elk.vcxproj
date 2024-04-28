@@ -148,8 +148,9 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
       <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y $(ProjectDir)shaders\  $(OutDir)shaders\
-xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
+      <Command>xcopy /y $(ProjectDir)shaders\  $(OutDir)shaders\ /E
+xcopy /y $(ProjectDir)models\ $(OutDir)models\ /E
+xcopy /y $(ProjectDir)skybox\ $(OutDir)skybox\ /E</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -200,6 +201,8 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
     <None Include="shaders\phong.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
+    <None Include="shaders\skybox.frag" />
+    <None Include="shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png" />

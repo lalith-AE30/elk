@@ -14,7 +14,7 @@ private:
     bool prev_state = GLFW_RELEASE;
     const KeyType type_;
 
-    int key_state();
+    int key_state() const;
 
 public:
     const int key_;
@@ -23,7 +23,7 @@ public:
     KeyBind(GLFWwindow* window, int key, KeyType type = KeyType::KEYBOARD) : window_(window), key_(key), type_(type) { }
 
     bool clicked();
-    bool down();
+    bool down() const;
 };
 
 // TODO make bindings extensible

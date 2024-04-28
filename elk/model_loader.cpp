@@ -1,8 +1,5 @@
 #include "model_loader.hpp"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -287,16 +284,16 @@ GLuint loadTexture(const char* filename, bool vertical_flip, bool use_alpha) {
     return texture;
 }
 
-GLuint loadCubemap(std::vector<std::string> faces) {
+GLuint loadCubemap(std::vector<std::string>& faces) {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(false);
     for (unsigned int i = 0; i < faces.size(); i++) {
-        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-        if (data)
-        {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 3);
+        if (data) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
             );

@@ -11,11 +11,10 @@
 #include <vector>
 #include <memory>
 
-
 #include "shader.hpp"
 
 GLuint loadTexture(const char*, bool = true, bool = false);
-GLuint loadCubemap(std::vector<std::string> faces);
+GLuint loadCubemap(std::vector<std::string>& faces);
 
 struct Vertex {
     glm::vec3 pos;

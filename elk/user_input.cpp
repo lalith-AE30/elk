@@ -1,6 +1,6 @@
 #include "user_input.hpp"
 
-int KeyBind::key_state() {
+int KeyBind::key_state() const{
     switch (type_) {
     case KeyType::MOUSE:
         return glfwGetMouseButton(window_, key_);
@@ -11,13 +11,13 @@ int KeyBind::key_state() {
     }
 }
 
-bool KeyBind::clicked() {
+bool KeyBind::clicked(){
     bool click = (prev_state != GLFW_PRESS && key_state() == GLFW_PRESS);
     prev_state = key_state();
     return click;
 }
 
-bool KeyBind::down() {
+bool KeyBind::down() const {
     return (key_state() == GLFW_PRESS);
 }
 

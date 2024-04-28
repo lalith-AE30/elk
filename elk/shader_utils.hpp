@@ -197,7 +197,7 @@ public:
                      1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
                 };
 
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
                 // vertex positions
                 glEnableVertexAttribArray(0);

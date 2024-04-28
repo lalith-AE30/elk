@@ -29,6 +29,87 @@ class Scene {
     Scene(std::vector<Model> models);
 };
 
+class Skybox {
+private:
+    GLuint skybox_vao, skybox_vbo;
+    GLuint cubemap_texture;
+    Shader skybox_shader;
+
+public:
+    Skybox(const char* vert_path, const char* frag_path, std::vector<std::string>& face_paths) : skybox_shader(vert_path, frag_path) {
+        cubemap_texture = loadCubemap(face_paths);
+        float skybox_vertices[] = {
+            // positions          
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+            -1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f
+        };
+        glGenVertexArrays(1, &skybox_vao);
+        glGenBuffers(1, &skybox_vbo);
+
+        glBindVertexArray(skybox_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, skybox_vbo);
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(skybox_vertices), &skybox_vertices[0], GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        glBindVertexArray(0);
+    }
+
+    void draw(glm::mat4& proj, glm::mat4& view) {
+        glDepthMask(GL_FALSE);
+        skybox_shader.use();
+
+        skybox_shader.setMat4("proj", proj);
+        skybox_shader.setMat4("view", glm::mat4(glm::mat3(view)));
+
+        glBindVertexArray(skybox_vao);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_texture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthMask(GL_TRUE);
+    }
+};
+
 int main() {
     glfwInit();
     {
@@ -70,6 +151,16 @@ int main() {
     Model bulb("models/sphere/sphere.obj", true);
     Model grass("models/grass/grass.obj", false, true);
     Model chess_board("models/chess_board/chess_board.obj", true, false);
+
+    std::vector<std::string> faces = {
+        "skybox/milkyway/px.png",
+        "skybox/milkyway/nx.png",
+        "skybox/milkyway/py.png",
+        "skybox/milkyway/ny.png",
+        "skybox/milkyway/pz.png",
+        "skybox/milkyway/nz.png"
+    };
+    Skybox skybox("shaders/skybox.vert", "shaders/skybox.frag", faces);
 
     // Initialize Lights ------------------------------------------------------------------------
     DirectionalLight dir_light(
@@ -268,12 +359,14 @@ int main() {
             glm::mat4 view = camera.getViewMatrix();
 
             {
-                active_shader->use();
                 target.use();
                 glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
                 glEnable(GL_DEPTH_TEST);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+                skybox.draw(proj, view);
+
+                active_shader->use();
                 active_shader->setMat4("proj", proj);
                 active_shader->setMat4("view", view);
 
