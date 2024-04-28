@@ -33,27 +33,23 @@ public:
         front(glm::vec3(0.0f, 0.0f, -1.0f)),
         movement_speed(SPEED),
         mouse_sensitivity(SENSITIVITY),
-        zoom(ZOOM)
-    {
-        pos = position;
-        world_up = up;
-        yaw_ = yaw;
-        pitch_ = pitch;
-        updateCameraVectors();
-    }
+        zoom(ZOOM),
+        pos(position),
+        world_up(up),
+        yaw_(yaw),
+        pitch_(pitch)
+    { updateCameraVectors(); }
 
     Camera(float pos_x, float pos_y, float pos_z, float up_x, float up_y, float up_z, float yaw = YAW, float pitch = PITCH) :
         front(glm::vec3(0.0f, 0.0f, -1.0f)),
         movement_speed(SPEED),
         mouse_sensitivity(SENSITIVITY),
-        zoom(ZOOM)
-    {
-        pos = glm::vec3(pos_x, pos_y, pos_z);
-        world_up = glm::vec3(up_x, up_y, up_z);
-        yaw_ = yaw;
-        pitch_ = pitch;
-        updateCameraVectors();
-    }
+        zoom(ZOOM),
+        pos(glm::vec3(pos_x, pos_y, pos_z)),
+        world_up(glm::vec3(up_x, up_y, up_z)),
+        yaw_(yaw),
+        pitch_(pitch)
+    { updateCameraVectors(); }
 
     glm::mat4 getViewMatrix() const {
         return glm::lookAt(pos, pos + front, up);
@@ -83,7 +79,7 @@ public:
         }
     }
 
-    void processMouseMovement(GLFWwindow* window, GLboolean constrainPitch = true) {
+    void processMouseMovement(GLFWwindow* window, GLboolean constrain_pitch = true) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         if (refocus) {
@@ -100,8 +96,7 @@ public:
         pitch_ += yoffset;
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (constrainPitch)
-        {
+        if (constrain_pitch) {
             if (pitch_ > 89.0f)
                 pitch_ = 89.0f;
             if (pitch_ < -89.0f)
@@ -112,13 +107,22 @@ public:
         updateCameraVectors();
     }
 
-    void processMouseScroll(float yoffset)
-    {
+    void processMouseScroll(float yoffset) {
         zoom -= (float)yoffset;
         if (zoom < 1.0f)
             zoom = 1.0f;
         if (zoom > 120.0f)
             zoom = 120.0f;
+    }
+
+    void setFront(glm::vec3 new_front) {
+        pitch_ = glm::atan(new_front.z,glm::length(glm::vec2(new_front.x, new_front.z)));
+        yaw_ = glm::atan(new_front.x, new_front.y);
+        updateCameraVectors();
+    }
+
+    glm::vec3 getFront() const {
+        return front;
     }
 
 private:
@@ -131,8 +135,7 @@ private:
     float yaw_, pitch_;
 
     float last_x = 400, last_y = 300;
-    void updateCameraVectors()
-    {
+    void updateCameraVectors() {
         // calculate the front vector using Euler Angles
         front = glm::vec3(
             cos(glm::radians(yaw_)) * cos(glm::radians(pitch_)),

@@ -161,6 +161,9 @@
     <None Include="shaders\screen.frag">
       <Filter>Shader Files</Filter>
     </None>
+    <None Include="shaders\mandelbrot.frag">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="textures\awesomeface.png">

@@ -27,8 +27,7 @@ void Mesh::draw(Shader& shader) {
     GLuint specular_nr = 0;
     GLuint normal_nr = 0;
     shader.use();
-    for (unsigned int i = 0; i < textures.size(); i++)
-    {
+    for (unsigned int i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
 
         std::string name = textures[i].type;
@@ -125,9 +124,8 @@ public:
     modelImpl(const char* path, bool vertically_flip_textures, bool use_alpha, bool use_normal_maps) :
         vertical_flip(vertically_flip_textures),
         use_alpha(use_alpha),
-        use_normal_maps(use_normal_maps) {
-        loadModel(path);
-    }
+        use_normal_maps(use_normal_maps) 
+    { loadModel(path); }
 
     ~modelImpl() {
         for (auto& texture : textures_loaded) {
@@ -256,8 +254,8 @@ void Model::draw(Shader& shader, int mesh_nr) {
     }
 }
 
-unsigned int loadTexture(const char* filename, bool vertical_flip, bool use_alpha) {
-    unsigned texture;
+GLuint loadTexture(const char* filename, bool vertical_flip, bool use_alpha) {
+    GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     // set the texture wrapping parameters
@@ -282,10 +280,40 @@ unsigned int loadTexture(const char* filename, bool vertical_flip, bool use_alph
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
-        std::cout << "Failed to load texture " << filename << ". Reason: " << stbi_failure_reason() << std::endl;
+        std::cerr << "Failed to load texture " << filename << ". Reason: " << stbi_failure_reason() << std::endl;
         return 0;
     }
     stbi_image_free(data);
+    return texture;
+}
+
+GLuint loadCubemap(std::vector<std::string> faces) {
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+
+    int width, height, nrChannels;
+    for (unsigned int i = 0; i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+            );
+            stbi_image_free(data);
+        }
+        else
+        {
+            std::cerr << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+            stbi_image_free(data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
     return texture;
 }
 

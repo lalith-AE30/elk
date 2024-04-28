@@ -185,6 +185,7 @@ xcopy /y $(ProjectDir)models\ $(OutDir)models\</Command>
   <ItemGroup>
     <None Include="external\imgui\misc\debuggers\imgui.natstepfilter" />
     <None Include="shaders\depth.frag" />
+    <None Include="shaders\mandelbrot.frag" />
     <None Include="shaders\normal.frag" />
     <None Include="shaders\normal.vert" />
     <None Include="shaders\screen.frag" />

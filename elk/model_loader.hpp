@@ -1,6 +1,9 @@
 #ifndef MODEL_LOADER_H
 #define MODEL_LOADER_H
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -8,9 +11,11 @@
 #include <vector>
 #include <memory>
 
+
 #include "shader.hpp"
 
-unsigned int loadTexture(const char*, bool = true, bool = false);
+GLuint loadTexture(const char*, bool = true, bool = false);
+GLuint loadCubemap(std::vector<std::string> faces);
 
 struct Vertex {
     glm::vec3 pos;

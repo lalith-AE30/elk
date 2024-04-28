@@ -25,110 +25,6 @@
 #include "shader_utils.hpp"
 #include "window_callbacks.hpp"
 
-class RenderTarget {
-private:
-    GLuint fbo, rbo, tco;
-    GLuint quad_vao, quad_vbo;
-
-public:
-    RenderTarget(unsigned int scr_width, unsigned int scr_height) {
-        {
-            glGenFramebuffers(1, &fbo);
-            glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-            glGenTextures(1, &tco);
-            glBindTexture(GL_TEXTURE_2D, tco);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tco, 0);
-
-            glGenRenderbuffers(1, &rbo);
-            glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, scr_width, scr_height);
-            glBindRenderbuffer(GL_RENDERBUFFER, 0);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-                std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        }
-
-        {
-            glGenVertexArrays(1, &quad_vao);
-            glGenBuffers(1, &quad_vbo);
-            glBindVertexArray(quad_vao);
-
-            glBindBuffer(GL_ARRAY_BUFFER, quad_vbo);
-
-            float vertices[] = {
-                -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-                 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-                -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-                 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-            };
-
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
-
-            // vertex positions
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-            // vertex texture coords
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-
-            glBindVertexArray(0);
-        }
-    }
-
-    ~RenderTarget() {
-        glDeleteFramebuffers(1, &fbo);
-        glDeleteRenderbuffers(1, &rbo);
-        glDeleteTextures(1, &tco);
-    }
-
-    void updateRenderShape(unsigned int scr_width, unsigned int scr_height) {
-        glBindTexture(GL_TEXTURE_2D, tco);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tco, 0);
-
-        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, scr_width, scr_height);
-        glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-
-    void use() {
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    }
-
-    void draw() {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glBindVertexArray(quad_vao);
-        glDisable(GL_DEPTH_TEST);
-        glBindTexture(GL_TEXTURE_2D, tco);
-
-        GLint prev_mode;
-        glGetIntegerv(GL_POLYGON_MODE, &prev_mode);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glPolygonMode(GL_FRONT_AND_BACK, prev_mode);
-    }
-};
-
 class Scene {
     Scene(std::vector<Model> models);
 };
@@ -167,9 +63,10 @@ int main() {
     Shader outline_shader("shaders/phong.vert", "shaders/outline.frag");
     Shader light_source_shader("shaders/light.vert", "shaders/light.frag");
     Shader screen_shader("shaders/screen.vert", "shaders/screen_postprocess.frag");
+    Shader mandelbrot_shader("shaders/screen.vert", "shaders/mandelbrot.frag");
 
     // Initialize Models ------------------------------------------------------------------------
-    Model test_object("models/anime_girl/anime_girl.obj", false, false);
+    Model test_object("models/backpack/backpack.obj", true, false);
     Model bulb("models/sphere/sphere.obj", true);
     Model grass("models/grass/grass.obj", false, true);
     Model chess_board("models/chess_board/chess_board.obj", true, false);
@@ -364,102 +261,107 @@ int main() {
             ImGui::Render();
         }
 
-        // Set-up next frame ------------------------------------------------------------------------
-        float aspect = (float)state.scr_width / (float)state.scr_height;
-        glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), aspect, 0.1f, 100.0f);
-        glm::mat4 view = camera.getViewMatrix();
+        // Set-up next frame and render all objects for target1 ------------------------------------
         {
-            active_shader->use();
-            target.use();
-            glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
-            glEnable(GL_DEPTH_TEST);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            float aspect = (float)state.scr_width / (float)state.scr_height;
+            glm::mat4 proj = glm::perspective(glm::radians(camera.zoom), aspect, 0.1f, 100.0f);
+            glm::mat4 view = camera.getViewMatrix();
 
-            active_shader->setMat4("proj", proj);
-            active_shader->setMat4("view", view);
-
-            dir_light.dir = glm::vec4(sin(current_frame), -1.0f, cos(current_frame), 0.0f);
-            updateMaterialShader(*active_shader, lights);
-        }
-
-        // Render all objects -----------------------------------------------------------------------
-        {
-            // Render Chessboard --------------------------------------------------------------------
             {
-                glm::mat4 model(1.0f);
-                model = glm::translate(model, glm::vec3(0.0f, -0.3f, 0.0f));
+                active_shader->use();
+                target.use();
+                glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
+                glEnable(GL_DEPTH_TEST);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-                glStencilMask(0x00);
-                active_shader->setMat4("model", model);
+                active_shader->setMat4("proj", proj);
+                active_shader->setMat4("view", view);
 
-                chess_board.draw(*active_shader, state.mesh);
+                dir_light.dir = glm::vec4(sin(current_frame), -1.0f, cos(current_frame), 0.0f);
+                updateMaterialShader(*active_shader, lights);
             }
-            // --------------------------------------------------------------------------------------
 
-            // Billboard Grass ----------------------------------------------------------------------
-            for (int i = 0; render_grass && i < nr_grass; i++) {
-                glm::mat4 model(1.0f);
-                model = glm::translate(model, glm::vec3(dist[i].x, 0.7f, dist[i].y));
-                model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-                active_shader->setMat4("model", model);
-                grass.draw(*active_shader, state.mesh);
-            }
-            // --------------------------------------------------------------------------------------
-
-            // Test Object --------------------------------------------------------------------------
             {
-                glStencilMask(0xFF);
-
-                glm::mat4 model(1.0f);
-                model = glm::translate(model, glm::vec3(0.0f, 0.7f, 0.0f));
-                model = glm::scale(model, glm::vec3(scale));
-
-                active_shader->setMat4("model", model);
-
-                test_object.draw(*active_shader, state.mesh);
-
-                if (render_outline) {
-                    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-                    glDisable(GL_DEPTH_TEST);
-                    glStencilMask(0x00);
-
-                    model = glm::scale(model, glm::vec3(1.05f, 1.05f, 1.05f));
-
-                    outline_shader.use();
-
-                    outline_shader.setMat4("proj", proj);
-                    outline_shader.setMat4("view", view);
-                    outline_shader.setMat4("model", model);
-
-                    test_object.draw(outline_shader, state.mesh);
-
-                    glEnable(GL_DEPTH_TEST);
-                    glStencilMask(0xFF);
-                    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-                }
-            }
-            // --------------------------------------------------------------------------------------
-
-            // Lights -------------------------------------------------------------------------------
-            {
-                light_source_shader.use();
-
-                light_source_shader.setMat4("proj", proj);
-                light_source_shader.setMat4("view", view);
-
-                light_source_shader.setVec4("light_color", point_lights[0]->diffuse * 1e-1f * state.distance); // TODO Change heuristic constant
-
-                for (auto& pos : point_light_positions) {
+                // Render Chessboard --------------------------------------------------------------------
+                {
                     glm::mat4 model(1.0f);
-                    model = glm::translate(model, pos);
-                    light_source_shader.setMat4("model", model);
-                    bulb.draw(light_source_shader);
+                    model = glm::translate(model, glm::vec3(0.0f, -0.3f, 0.0f));
+
+                    glStencilMask(0x00);
+                    active_shader->setMat4("model", model);
+
+                    chess_board.draw(*active_shader, state.mesh);
+                }
+                // --------------------------------------------------------------------------------------
+
+                // Billboard Grass ----------------------------------------------------------------------
+                for (int i = 0; render_grass && i < nr_grass; i++) {
+                    glm::mat4 model(1.0f);
+                    model = glm::translate(model, glm::vec3(dist[i].x, 0.7f, dist[i].y));
+                    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                    active_shader->setMat4("model", model);
+                    grass.draw(*active_shader, state.mesh);
+                }
+                // --------------------------------------------------------------------------------------
+
+                // Test Object --------------------------------------------------------------------------
+                {
+                    glStencilMask(0xFF);
+
+                    glm::mat4 model(1.0f);
+                    model = glm::translate(model, glm::vec3(0.0f, 0.7f, 0.0f));
+                    model = glm::scale(model, glm::vec3(scale));
+
+                    active_shader->setMat4("model", model);
+
+                    test_object.draw(*active_shader, state.mesh);
+
+                    if (render_outline) {
+                        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+                        glDisable(GL_DEPTH_TEST);
+                        glStencilMask(0x00);
+
+                        model = glm::scale(model, glm::vec3(1.05f, 1.05f, 1.05f));
+
+                        outline_shader.use();
+
+                        outline_shader.setMat4("proj", proj);
+                        outline_shader.setMat4("view", view);
+                        outline_shader.setMat4("model", model);
+
+                        test_object.draw(outline_shader, state.mesh);
+
+                        glEnable(GL_DEPTH_TEST);
+                        glStencilMask(0xFF);
+                        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                    }
+                }
+                // --------------------------------------------------------------------------------------
+
+                // Lights -------------------------------------------------------------------------------
+                {
+                    light_source_shader.use();
+
+                    light_source_shader.setMat4("proj", proj);
+                    light_source_shader.setMat4("view", view);
+
+                    light_source_shader.setVec4("light_color", point_lights[0]->diffuse * 1e-1f * state.distance); // TODO Change heuristic constant
+
+                    for (auto& pos : point_light_positions) {
+                        glm::mat4 model(1.0f);
+                        model = glm::translate(model, pos);
+                        light_source_shader.setMat4("model", model);
+                        bulb.draw(light_source_shader);
+                    }
                 }
             }
         }
 
         // Render to target -------------------------------------------------------------------------
         screen_shader.use();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         target.draw();
 
         // New frame setup --------------------------------------------------------------------------

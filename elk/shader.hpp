@@ -14,8 +14,7 @@ class Shader
 {
 public:
     const GLuint ID;
-    Shader(const char* vert_path, const char* frag_path) : ID(glCreateProgram())
-    {
+    Shader(const char* vert_path, const char* frag_path) : ID(glCreateProgram()) {
         std::string vert_buf;
         std::string frag_buf;
         std::ifstream vert_file;
@@ -23,8 +22,7 @@ public:
         // ensure ifstream objects can throw exceptions:
         vert_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         frag_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        try
-        {
+        try {
             vert_file.open(vert_path);
             frag_file.open(frag_path);
             std::stringstream vert_stream, frag_stream;
@@ -38,8 +36,7 @@ public:
             vert_buf = vert_stream.str();
             frag_buf = frag_stream.str();
         }
-        catch (std::ifstream::failure& e)
-        {
+        catch (std::ifstream::failure& e) {
             std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
         }
 
