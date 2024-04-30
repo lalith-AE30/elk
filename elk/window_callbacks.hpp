@@ -9,6 +9,7 @@
 #include "user_input.hpp"
 #include "camera.hpp" 
 
+// TODO Which parts of this should be related to window
 struct WindowState {
     unsigned int scr_width = 800;
     unsigned int scr_height = 600;

@@ -9,7 +9,7 @@ uniform float time;
 const int max_iteration = 1000;
 
 void main() {
-    vec2 z0 = vec2(1.235*frag_pos.x-.53, 1.12*frag_pos.y);
+    vec2 z0 = vec2(1.235*(2*tex_coord.x-1)-.53, 1.12*(2*tex_coord.y-1));
     vec2 z = vec2(0);
     int i = 0;
     while (dot(z, z) <= 16 && i < max_iteration) {
@@ -19,5 +19,8 @@ void main() {
         i+=1;
     }
 
-    frag_color  = vec4(float(i<max_iteration)*(1-exp(time-float(i))), 0.0, 0.0, 1.0);
+    float fac = float(i<max_iteration)*(1-exp(time-float(i)));
+    if (fac<0.1) discard;
+
+    frag_color  = vec4(fac, 0.0, 0.0, 1.0);
 }  

@@ -106,6 +106,7 @@ GLFWwindow* bindWindow(unsigned int scr_width, unsigned int scr_height, Camera* 
         }
         glViewport(0, 0, window_state.scr_width, window_state.scr_height);
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
     }
 
     window_state.camera = camera;
