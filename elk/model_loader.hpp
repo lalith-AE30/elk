@@ -12,21 +12,10 @@
 #include <memory>
 
 #include "shader.hpp"
+#include "common.hpp"
 
 GLuint loadTexture(const char*, bool = true, bool = false);
 GLuint loadCubemap(std::vector<std::string>& faces);
-
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 normal;
-    glm::vec2 tex_coord;
-};
-
-struct Texture {
-    unsigned int id = 0;
-    std::string type;
-    std::string path;
-};
 
 class Mesh {
 public:
@@ -56,8 +45,23 @@ public:
 
     void draw(Shader& shader, int mesh_nr = -1);
 
+    std::vector<Mesh>& getMeshes();
+
 private:
     std::unique_ptr<modelImpl> pimpl;
+};
+
+class Skybox {
+private:
+    GLuint skybox_vao, skybox_vbo;
+    Shader skybox_shader;
+
+public:
+    GLuint cubemap_texture;
+
+    Skybox(const char* vert_path, const char* frag_path, std::vector<std::string>& face_paths);
+
+    void draw(glm::mat4& proj, glm::mat4& view);
 };
 
 #endif // !MODEL_LOADER_H

@@ -34,6 +34,9 @@
     <Filter Include="Shader Files\Post-Processing">
       <UniqueIdentifier>{9c3bfcd7-f11e-4011-9a13-5812c3cae58a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Skybox">
+      <UniqueIdentifier>{aa5934bb-184b-4d01-9a96-92ca728aaf45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -71,6 +74,9 @@
     </ClCompile>
     <ClCompile Include="imgui_impl_opengl3.cpp">
       <Filter>Source Files\External Source FIles</Filter>
+    </ClCompile>
+    <ClCompile Include="common.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="external\imgui\imstb_truetype.h">
       <Filter>Header Files\External Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,10 +176,19 @@
     <None Include="shaders\screen.frag">
       <Filter>Shader Files\Post-Processing</Filter>
     </None>
+    <None Include="shaders\skybox.frag">
+      <Filter>Shader Files\Skybox</Filter>
+    </None>
     <None Include="shaders\skybox.vert">
+      <Filter>Shader Files\Skybox</Filter>
+    </None>
+    <None Include="shaders\refx.frag">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shaders\skybox.frag">
+    <None Include="shaders\identity.vert">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shaders\identity.frag">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
